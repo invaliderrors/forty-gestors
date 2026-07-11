@@ -1,4 +1,3 @@
-import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 
 import { dateToDisplay, displayToDate } from '@/domain/rifa/validators';
@@ -18,12 +17,15 @@ export function useDrawDatePicker(currentDisplay: string, onPick: (display: stri
   const typed = displayToDate(currentDisplay);
   const pickerValue = typed && typed >= tomorrow ? typed : tomorrow;
 
-  const handleChange = (event: DateTimePickerEvent, date?: Date) => {
-    // Android dispara 'set' o 'dismissed' una sola vez; se cierra siempre.
+  /** El usuario eligió una fecha en el calendario. */
+  const handleValueChange = (_event: unknown, date: Date) => {
     setIsOpen(false);
-    if (event.type === 'set' && date) {
-      onPick(dateToDisplay(date));
-    }
+    onPick(dateToDisplay(date));
+  };
+
+  /** El usuario cerró el calendario sin elegir. */
+  const handleDismiss = () => {
+    setIsOpen(false);
   };
 
   return {
@@ -31,6 +33,7 @@ export function useDrawDatePicker(currentDisplay: string, onPick: (display: stri
     open: () => setIsOpen(true),
     pickerValue,
     minimumDate: tomorrow,
-    handleChange,
+    handleValueChange,
+    handleDismiss,
   };
 }

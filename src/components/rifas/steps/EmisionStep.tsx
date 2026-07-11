@@ -76,7 +76,8 @@ export function EmisionStep({ wizard }: EmisionStepProps) {
           value={datePicker.pickerValue}
           mode="date"
           minimumDate={datePicker.minimumDate}
-          onChange={datePicker.handleChange}
+          onValueChange={datePicker.handleValueChange}
+          onDismiss={datePicker.handleDismiss}
         />
       ) : null}
 
