@@ -21,6 +21,7 @@ export function LoginScreen() {
 
   return (
     <AuthShell
+      centerContent
       heroAccessory={
         <View style={styles.logoRow}>
           <FortuLogo size={72} />
