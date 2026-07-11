@@ -12,6 +12,11 @@ export class MockRifaRepository implements RifaRepository {
     return [...mockDb.rifas].reverse();
   }
 
+  async getById(id: string): Promise<Rifa | null> {
+    await simulateLatency(300);
+    return mockDb.rifas.find((rifa) => rifa.id === id) ?? null;
+  }
+
   async create(draft: RifaDraft): Promise<Rifa> {
     await simulateLatency(1000);
     const rifa: Rifa = {

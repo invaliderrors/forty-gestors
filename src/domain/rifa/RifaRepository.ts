@@ -7,5 +7,6 @@ import type { Rifa, RifaDraft } from '@/domain/rifa/types';
  */
 export type RifaRepository = {
   list(): Promise<Rifa[]>;
+  getById(id: string): Promise<Rifa | null>;
   create(draft: RifaDraft): Promise<Rifa>;
 };

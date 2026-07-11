@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { ClayCard } from '@/components/shared/clay/ClayCard';
 import { prizeSummary, RIFA_STATUS_LABEL, totalPrizeValue, type Rifa } from '@/domain/rifa/types';
@@ -10,10 +10,11 @@ import { colors } from '@/theme';
 
 type RifaCardProps = {
   rifa: Rifa;
+  onPress: () => void;
 };
 
-/** Card del listado de rifas: estado, sorteo, emisión y avance de venta. */
-export function RifaCard({ rifa }: RifaCardProps) {
+/** Card del listado de rifas: estado, sorteo, emisión y avance de venta. Toca para ver el detalle. */
+export function RifaCard({ rifa, onPress }: RifaCardProps) {
   const isRevision = rifa.status === 'en_revision';
   const soldRatio = rifa.ticketCount > 0 ? rifa.soldTickets / rifa.ticketCount : 0;
   const principal = rifa.prizes[0];
@@ -21,7 +22,13 @@ export function RifaCard({ rifa }: RifaCardProps) {
   const extraCount = rifa.prizes.length - 1;
 
   return (
-    <ClayCard style={styles.card}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Ver detalle de ${rifa.name}`}
+      onPress={onPress}
+      style={({ pressed }) => (pressed ? styles.cardPressed : null)}
+    >
+      <ClayCard style={styles.card}>
       <View style={styles.headerRow}>
         <Text style={styles.name} numberOfLines={1}>
           {rifa.name}
@@ -75,6 +82,7 @@ export function RifaCard({ rifa }: RifaCardProps) {
       <Text style={styles.progressLabel}>
         {rifa.soldTickets} de {rifa.ticketCount} boletas vendidas
       </Text>
-    </ClayCard>
+      </ClayCard>
+    </Pressable>
   );
 }

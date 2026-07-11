@@ -6,6 +6,9 @@ export const rifaCardStyles = StyleSheet.create({
   card: {
     gap: spacing.md,
   },
+  cardPressed: {
+    opacity: 0.8,
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',

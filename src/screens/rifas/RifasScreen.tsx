@@ -50,7 +50,7 @@ export function RifasScreen() {
       {list.status === 'ready' && list.rifas.length > 0 ? (
         <View style={styles.list}>
           {list.rifas.map((rifa) => (
-            <RifaCard key={rifa.id} rifa={rifa} />
+            <RifaCard key={rifa.id} rifa={rifa} onPress={() => router.push(`/rifa/${rifa.id}`)} />
           ))}
         </View>
       ) : null}
