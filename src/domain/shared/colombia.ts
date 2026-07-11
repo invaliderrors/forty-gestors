@@ -1,38 +1,17 @@
-/** Departamentos de Colombia (DIVIPOLA) + Bogotá D.C. para la dirección de notificación. */
-export const DEPARTMENTS = [
-  'Amazonas',
-  'Antioquia',
-  'Arauca',
-  'Atlántico',
-  'Bogotá D.C.',
-  'Bolívar',
-  'Boyacá',
-  'Caldas',
-  'Caquetá',
-  'Casanare',
-  'Cauca',
-  'Cesar',
-  'Chocó',
-  'Córdoba',
-  'Cundinamarca',
-  'Guainía',
-  'Guaviare',
-  'Huila',
-  'La Guajira',
-  'Magdalena',
-  'Meta',
-  'Nariño',
-  'Norte de Santander',
-  'Putumayo',
-  'Quindío',
-  'Risaralda',
-  'San Andrés y Providencia',
-  'Santander',
-  'Sucre',
-  'Tolima',
-  'Valle del Cauca',
-  'Vaupés',
-  'Vichada',
-] as const;
+import { COLOMBIA_DIVIPOLA } from '@/domain/shared/colombiaDivipola';
 
-export type Department = (typeof DEPARTMENTS)[number];
+/**
+ * Facade de la división político-administrativa (DIVIPOLA, DANE) para la
+ * dirección de notificación: departamentos y municipios dependientes.
+ */
+export const DEPARTMENTS: readonly string[] = COLOMBIA_DIVIPOLA.map(
+  (department) => department.name,
+);
+
+export function municipalitiesOf(departmentName: string | null): readonly string[] {
+  if (!departmentName) {
+    return [];
+  }
+  const department = COLOMBIA_DIVIPOLA.find((entry) => entry.name === departmentName);
+  return department ? department.municipalities.map((municipality) => municipality.name) : [];
+}

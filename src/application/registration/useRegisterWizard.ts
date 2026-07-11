@@ -168,8 +168,8 @@ function validateContact(contact: ContactData): WizardErrors {
   if (!contact.department) {
     errors.department = 'Selecciona el departamento.';
   }
-  if (contact.city.trim().length < 3) {
-    errors.city = 'Escribe la ciudad o municipio.';
+  if (contact.city.trim().length === 0) {
+    errors.city = 'Selecciona el municipio.';
   }
   if (!isValidColombianMobile(contact.phone)) {
     errors.phone = 'Escribe un celular colombiano válido (10 dígitos, inicia en 3).';

@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { RegisterWizard } from '@/application/registration/useRegisterWizard';
 import { ClayPickerSheet } from '@/components/shared/clay/ClayPickerSheet';
 import { ClaySelectField } from '@/components/shared/clay/ClaySelectField';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
-import { DEPARTMENTS } from '@/domain/shared/colombia';
+import { DEPARTMENTS, municipalitiesOf } from '@/domain/shared/colombia';
 import { colors, fonts, fontSizes, spacing } from '@/theme';
 
 const departmentOptions = DEPARTMENTS.map((department) => ({
@@ -22,6 +22,16 @@ export function ContactStep({ wizard }: ContactStepProps) {
   const { contact } = wizard.state;
   const errors = wizard.visibleErrors;
   const [isDepartmentSheetOpen, setIsDepartmentSheetOpen] = useState(false);
+  const [isCitySheetOpen, setIsCitySheetOpen] = useState(false);
+
+  const cityOptions = useMemo(
+    () =>
+      municipalitiesOf(contact.department).map((municipality) => ({
+        value: municipality,
+        label: municipality,
+      })),
+    [contact.department],
+  );
 
   return (
     <View style={styles.container}>
@@ -43,13 +53,20 @@ export function ContactStep({ wizard }: ContactStepProps) {
         onPress={() => setIsDepartmentSheetOpen(true)}
         error={errors.department}
       />
-      <ClayTextInput
+      <ClaySelectField
         label="Ciudad o municipio"
-        value={contact.city}
-        onChangeText={(value) => wizard.setContact('city', value)}
-        placeholder="Ej: Ibagué"
-        autoCapitalize="words"
+        value={contact.city.length > 0 ? contact.city : null}
+        placeholder={
+          contact.department ? 'Selecciona el municipio' : 'Elige primero el departamento'
+        }
         icon="navigate-outline"
+        onPress={() => {
+          if (contact.department) {
+            setIsCitySheetOpen(true);
+          } else {
+            setIsDepartmentSheetOpen(true);
+          }
+        }}
         error={errors.city}
       />
 
@@ -84,8 +101,24 @@ export function ContactStep({ wizard }: ContactStepProps) {
         title="Departamento"
         options={departmentOptions}
         selectedValue={contact.department}
-        onSelect={(value) => wizard.setContact('department', value)}
+        searchable
+        onSelect={(value) => {
+          if (value !== contact.department) {
+            // Municipio depende del departamento: al cambiarlo se limpia.
+            wizard.setContact('city', '');
+          }
+          wizard.setContact('department', value);
+        }}
         onClose={() => setIsDepartmentSheetOpen(false)}
+      />
+      <ClayPickerSheet
+        visible={isCitySheetOpen}
+        title={contact.department ? `Municipios de ${contact.department}` : 'Municipio'}
+        options={cityOptions}
+        selectedValue={contact.city.length > 0 ? contact.city : null}
+        searchable
+        onSelect={(value) => wizard.setContact('city', value)}
+        onClose={() => setIsCitySheetOpen(false)}
       />
     </View>
   );
