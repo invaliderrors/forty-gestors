@@ -6,14 +6,12 @@ export type PersonaType = 'natural' | 'juridica';
  * Documentos de identidad admitidos para persona natural.
  * CC/CE son numéricos; el pasaporte es alfanumérico (misma regla que fortu-app).
  */
-export type NaturalDocType = 'CC' | 'CE' | 'PA' | 'PEP' | 'PPT';
+export type NaturalDocType = 'CC' | 'CE' | 'PA';
 
 export const NATURAL_DOC_TYPES: readonly { value: NaturalDocType; label: string }[] = [
   { value: 'CC', label: 'Cédula de ciudadanía' },
   { value: 'CE', label: 'Cédula de extranjería' },
   { value: 'PA', label: 'Pasaporte' },
-  { value: 'PEP', label: 'Permiso Especial de Permanencia (PEP)' },
-  { value: 'PPT', label: 'Permiso por Protección Temporal (PPT)' },
 ];
 
 export function naturalDocTypeLabel(docType: NaturalDocType): string {

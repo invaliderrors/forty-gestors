@@ -3,7 +3,7 @@ import type { NaturalDocType } from '@/domain/registration/types';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 /** Celular colombiano: 10 dígitos iniciando en 3. */
 const CO_MOBILE_RE = /^3\d{9}$/;
-/** Documentos numéricos (CC, CE, PEP, PPT). */
+/** Documentos numéricos (CC, CE). */
 const NUMERIC_DOC_RE = /^\d{5,15}$/;
 /** Pasaporte: alfanumérico, como en el contrato de fortu-app. */
 const PASSPORT_RE = /^[A-Za-z0-9]{5,20}$/;
