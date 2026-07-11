@@ -10,30 +10,55 @@ import { SecurityStep } from '@/components/register/steps/SecurityStep';
 import { AuthShell } from '@/components/shared/AuthShell';
 import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayProgressSteps } from '@/components/shared/clay/ClayProgressSteps';
+import type { PersonaType } from '@/domain/registration/types';
 import { spacing } from '@/theme';
 
-const STEP_COPY = [
-  {
-    title: 'Cuéntanos de ti',
-    subtitle: 'Con estos datos registramos tu operación ante Coljuegos.',
-  },
-  {
-    title: '¿Dónde te ubicamos?',
-    subtitle: 'Dirección de notificación y datos de contacto.',
-  },
-  {
-    title: 'Verifica tu identidad',
-    subtitle: 'Los documentos que exige la norma para operar rifas legales.',
-  },
-  {
-    title: 'Asegura tu cuenta',
-    subtitle: 'Último paso: tu contraseña de acceso.',
-  },
-] as const;
+const STEP_COPY: Record<PersonaType, { title: string; subtitle: string }[]> = {
+  natural: [
+    {
+      title: 'Cuéntanos de ti',
+      subtitle: 'Con estos datos registramos tu operación.',
+    },
+    {
+      title: '¿Dónde te ubicamos?',
+      subtitle: 'Dirección de notificación y datos de contacto.',
+    },
+    {
+      title: 'Verifica tu identidad',
+      subtitle: 'Los documentos que exige la norma para operar rifas legales.',
+    },
+    {
+      title: 'Asegura tu cuenta',
+      subtitle: 'Último paso: tu contraseña de acceso.',
+    },
+  ],
+  juridica: [
+    {
+      title: 'Datos de tu empresa',
+      subtitle: 'Con estos datos registramos la operación de tu empresa.',
+    },
+    {
+      title: '¿Dónde los ubicamos?',
+      subtitle: 'Dirección de notificación y datos de contacto.',
+    },
+    {
+      title: 'Verifica la empresa',
+      subtitle: 'Los documentos que exige la norma para operar rifas legales.',
+    },
+    {
+      title: 'Asegura tu cuenta',
+      subtitle: 'Último paso: tu contraseña de acceso.',
+    },
+  ],
+};
 
-export function RegisterScreen() {
+type RegisterScreenProps = {
+  personaType: PersonaType;
+};
+
+export function RegisterScreen({ personaType }: RegisterScreenProps) {
   const router = useRouter();
-  const wizard = useRegisterWizard();
+  const wizard = useRegisterWizard(personaType);
   const { step, submit } = wizard.state;
 
   if (submit.status === 'success') {
@@ -41,13 +66,13 @@ export function RegisterScreen() {
       <AuthShell title="Registro completado" subtitle="Bienvenido al ecosistema Fortu.">
         <RegisterSuccess
           registrationId={submit.result.registrationId}
-          onGoToLogin={() => router.replace('/login')}
+          onGoToLogin={() => router.dismissAll()}
         />
       </AuthShell>
     );
   }
 
-  const copy = STEP_COPY[step];
+  const copy = STEP_COPY[personaType][step];
   const isLastStep = step === WIZARD_STEPS.length - 1;
 
   return (

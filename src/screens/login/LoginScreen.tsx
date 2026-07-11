@@ -21,11 +21,9 @@ export function LoginScreen() {
 
   return (
     <AuthShell
-      title="Hola otra vez"
-      subtitle="Entra para administrar tus rifas, tus vendedores y tu recaudo."
       heroAccessory={
         <View style={styles.logoRow}>
-          <FortuLogo size={34} withGestorTag />
+          <FortuLogo size={72} />
         </View>
       }
     >
@@ -87,8 +85,9 @@ export function LoginScreen() {
 
 const styles = StyleSheet.create({
   logoRow: {
-    alignItems: 'flex-start',
-    marginBottom: spacing.sm,
+    alignItems: 'center',
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
   },
   card: {
     gap: spacing.lg,

@@ -8,9 +8,11 @@
     "scheme": "fortugestor",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.fortu.gestor",
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.fortu.gestor",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

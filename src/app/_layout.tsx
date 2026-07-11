@@ -44,7 +44,7 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           animation: 'fade',
-          contentStyle: { backgroundColor: colors.heroBottom },
+          contentStyle: { backgroundColor: colors.background },
         }}
       />
     </ServicesProvider>

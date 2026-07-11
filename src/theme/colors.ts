@@ -1,8 +1,11 @@
 /**
- * Paleta de marca Fortu (misma que apps/mobile de fortu-app).
- * Los componentes NUNCA usan estos valores directamente: consumen los
- * tokens semánticos de `colors`, que son el punto único de theming
- * (whitelabel futuro = reemplazar este archivo por la config del gestor).
+ * Paleta de marca Fortu compartida con fortu-app (dorado, azules, cyan),
+ * pero con tokens semánticos PROPIOS de Fortu Gestor: lienzo claro con
+ * claymorfismo, navy en heros/splash y blanco para contraste. La idea es
+ * compartir marca sin replicar la identidad visual de la otra app.
+ *
+ * Los componentes NUNCA usan `palette` directamente: consumen `colors`,
+ * el punto único de theming (whitelabel futuro = reemplazar este archivo).
  */
 export const palette = {
   cyan: '#59CDF1',
@@ -42,15 +45,12 @@ export const colors = {
   surfaceBorder: '#E2EAF7',
   /** Labio de profundidad de superficies blancas. */
   surfaceDepth: '#CFDCF0',
+  /** Fondo de sheets/modales. */
+  surfaceModal: '#EDF2FA',
 
-  /** Hero / splash: azul profundo de marca. */
-  heroTop: palette.navy600,
-  heroMid: palette.navy500,
-  heroBottom: palette.navy800,
-
-  /** Blobs decorativos del lienzo claro. */
-  blobGold: '#FFF1C9',
-  blobCyan: '#DCF2FC',
+  /** Gradiente navy propio de heros y splash (stops del SVG). */
+  heroGradient: ['#1A4AD6', '#1535A8', '#0A1931'] as const,
+  heroBase: palette.navy800,
 
   textPrimary: palette.navy800,
   textSecondary: '#46587A',
@@ -59,6 +59,10 @@ export const colors = {
   textOnNavySoft: 'rgba(255,255,255,0.72)',
   textOnGold: palette.navy800,
   textLink: palette.navy300,
+
+  /** Blobs decorativos del lienzo claro. */
+  blobGold: '#FFE9A8',
+  blobCyan: '#C9EDFB',
 
   /** CTA principal (clay dorado). */
   ctaFace: palette.gold,

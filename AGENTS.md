@@ -34,12 +34,20 @@ Reglas:
 - Cuenta demo: `gestor@fortu.app` / `Fortu123!`.
 - Los errores de dominio usan códigos string estables (`AUTH/INVALID_CREDENTIALS`) siguiendo `libs/shared-errors` de fortu-app; al integrar, deben coincidir con el contrato real.
 
-## Diseño: "Fortu Clay" (claymorfismo)
+## Diseño: "Fortu Clay" (claymorfismo, identidad PROPIA)
 
-Colores de marca Fortu (dorado `gold`, azules `navy`, cyan, blanco en vistas para contraste). Patrón de pantalla: hero navy + sheet claro que sube (`AuthShell`). Kit en `components/shared/clay/`: superficies con labio de profundidad inferior + sombra exterior azulada; el CTA dorado se hunde al presionar (`ClayButton`). Tipografía: Nunito (display, redonda como el wordmark) + Plus Jakarta Sans (UI); cada peso es su propia `fontFamily` (así funciona RN).
+**Regla de oro (pedida por el usuario): compartimos la marca de fortu-app (dorado, azules navy, cyan, logos) pero NO replicamos su identidad visual.** Fortu Gestor es clara y claymórfica; fortu-app es oscura y glass. No copiar sus layouts/estilos tal cual.
 
+- Patrón de pantalla: hero navy (gradiente **SVG** propio, `ScreenBackground`: orbes cyan arriba-derecha / dorado abajo-izquierda — disposición inversa a fortu-app a propósito) + sheet claro que sube (`AuthShell`, blobs también en SVG radial).
+- Kit clay en `components/shared/clay/`: superficies blancas con labio de profundidad + sombra azulada; CTA dorado que se hunde (`ClayButton`).
+- Splash: **solo el wordmark "Fortu"** (nunca isotipo + isologo juntos) con arcos orbitando en **Lottie** (`assets/lottie/splash-halo.json`, autorado a mano — editable).
+- Registro: `/register` pregunta el tipo de cuenta (natural/jurídica) con `PersonaTypeCard`; al elegir navega a `/register/natural` o `/register/juridica` (wizard fijado a ese tipo vía `useRegisterWizard(personaType)`).
+- Tipografía: Nunito (display) + Plus Jakarta Sans (UI); cada peso es su propia `fontFamily` (así funciona RN).
 - Loading: `LoadingDots` en botones; **no** introducir `ActivityIndicator`.
 - Feedback inline con `ClayNotice`; selección en sheets con `ClayPickerSheet`.
+- `react-native-safe-area-context` se queda: expo-router lo requiere y los insets evitan el notch. No agregar la etiqueta "GESTOR" bajo el wordmark.
+- `@lottiefiles/dotlottie-react` existe solo para que el target web bundlee Lottie.
+- Si los typed routes se desincronizan tras mover rutas: borrar `.expo/` y arrancar `expo start` unos segundos (los regenera el dev server, no `expo export`).
 
 ## Dominio (registro KYC — Decreto 1486 de 2024)
 

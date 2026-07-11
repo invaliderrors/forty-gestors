@@ -48,7 +48,6 @@ type WizardState = {
 };
 
 type WizardAction =
-  | { type: 'set_persona'; personaType: PersonaType }
   | { type: 'set_identity'; field: keyof IdentityData; value: string }
   | { type: 'set_contact'; field: keyof ContactData; value: string }
   | { type: 'set_document'; kind: DocumentKind; file: PickedFile }
@@ -62,44 +61,39 @@ type WizardAction =
   | { type: 'submit_failed'; message: string }
   | { type: 'submit_succeeded'; result: RegistrationResult };
 
-const initialState: WizardState = {
-  step: 0,
-  showErrors: false,
-  identity: {
-    personaType: 'natural',
-    docType: 'CC',
-    docNumber: '',
-    fullName: '',
-    nit: '',
-    razonSocial: '',
-    repLegalName: '',
-    repLegalDocNumber: '',
-  },
-  contact: {
-    address: '',
-    department: null,
-    city: '',
-    phone: '',
-    email: '',
-  },
-  documents: {},
-  security: {
-    password: '',
-    confirmPassword: '',
-    acceptedTerms: false,
-  },
-  submit: { status: 'idle' },
-};
+function buildInitialState(personaType: PersonaType): WizardState {
+  return {
+    step: 0,
+    showErrors: false,
+    identity: {
+      personaType,
+      docType: 'CC',
+      docNumber: '',
+      fullName: '',
+      nit: '',
+      razonSocial: '',
+      repLegalName: '',
+      repLegalDocNumber: '',
+    },
+    contact: {
+      address: '',
+      department: null,
+      city: '',
+      phone: '',
+      email: '',
+    },
+    documents: {},
+    security: {
+      password: '',
+      confirmPassword: '',
+      acceptedTerms: false,
+    },
+    submit: { status: 'idle' },
+  };
+}
 
 function reducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
-    case 'set_persona':
-      // Cambiar de tipo de persona limpia los documentos: los slots exigidos son otros.
-      return {
-        ...state,
-        identity: { ...state.identity, personaType: action.personaType },
-        documents: {},
-      };
     case 'set_identity':
       return { ...state, identity: { ...state.identity, [action.field]: action.value } };
     case 'set_contact':
@@ -223,9 +217,10 @@ function validateStep(state: WizardState): WizardErrors {
   }
 }
 
-export function useRegisterWizard() {
+/** @param personaType Fijado por la pantalla previa de selección de tipo de cuenta. */
+export function useRegisterWizard(personaType: PersonaType) {
   const { registration } = useServices();
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, personaType, buildInitialState);
 
   const stepErrors = useMemo(() => validateStep(state), [state]);
   const visibleErrors: WizardErrors = state.showErrors ? stepErrors : {};
@@ -269,7 +264,6 @@ export function useRegisterWizard() {
     isStepValid: Object.keys(stepErrors).length === 0,
     goNext,
     goBack: () => dispatch({ type: 'go_back' }),
-    setPersona: (personaType: PersonaType) => dispatch({ type: 'set_persona', personaType }),
     setIdentity: (field: keyof IdentityData, value: string) =>
       dispatch({ type: 'set_identity', field, value }),
     setContact: (field: keyof ContactData, value: string) =>

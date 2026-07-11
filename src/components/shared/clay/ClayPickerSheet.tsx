@@ -96,9 +96,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceModal,
     borderTopLeftRadius: radii.sheet,
     borderTopRightRadius: radii.sheet,
+    borderTopWidth: 1,
+    borderColor: colors.surfaceBorder,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
     maxHeight: '72%',

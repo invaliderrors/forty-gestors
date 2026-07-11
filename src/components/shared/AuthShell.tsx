@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
@@ -12,11 +11,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
+import { ScreenBackground } from '@/components/shared/ScreenBackground';
 import { clayShadow, colors, fonts, fontSizes, radii, spacing } from '@/theme';
 
 type AuthShellProps = {
-  title: string;
+  title?: string;
   subtitle?: string;
   /** Contenido extra del hero (logo, progreso del wizard...). */
   heroAccessory?: ReactNode;
@@ -24,20 +25,45 @@ type AuthShellProps = {
   children: ReactNode;
 };
 
+function SheetBlob({
+  size,
+  color,
+  style,
+  id,
+}: {
+  size: number;
+  color: string;
+  style: object;
+  id: string;
+}) {
+  return (
+    <View pointerEvents="none" style={[styles.blob, style, { width: size, height: size }]}>
+      <Svg width={size} height={size}>
+        <Defs>
+          <RadialGradient id={id} cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={color} stopOpacity="0.9" />
+            <Stop offset="70%" stopColor={color} stopOpacity="0.35" />
+            <Stop offset="100%" stopColor={color} stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+        <Circle cx={size / 2} cy={size / 2} r={size / 2} fill={`url(#${id})`} />
+      </Svg>
+    </View>
+  );
+}
+
 /**
- * Cascarón de las vistas de auth: hero navy de marca arriba y "sheet"
- * claro claymórfico que sube por encima, donde vive el contenido.
+ * Cascarón de las vistas de auth de Fortu Gestor: hero navy de marca
+ * (gradiente SVG) y "sheet" claro claymórfico que sube por encima,
+ * donde vive el contenido.
  */
 export function AuthShell({ title, subtitle, heroAccessory, onBack, children }: AuthShellProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.heroTop} />
-      <LinearGradient
-        colors={[colors.heroTop, colors.heroMid, colors.heroBottom]}
-        style={StyleSheet.absoluteFill}
-      />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <ScreenBackground />
       <View style={[styles.hero, { paddingTop: insets.top + spacing.lg }]}>
         {onBack ? (
           <Pressable
@@ -51,7 +77,7 @@ export function AuthShell({ title, subtitle, heroAccessory, onBack, children }: 
           </Pressable>
         ) : null}
         {heroAccessory}
-        <Text style={styles.title}>{title}</Text>
+        {title ? <Text style={styles.title}>{title}</Text> : null}
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
 
@@ -60,8 +86,18 @@ export function AuthShell({ title, subtitle, heroAccessory, onBack, children }: 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.sheet}>
-          <View style={styles.blobGold} pointerEvents="none" />
-          <View style={styles.blobCyan} pointerEvents="none" />
+          <SheetBlob
+            id="sheetBlobGold"
+            size={260}
+            color={colors.blobGold}
+            style={styles.blobGoldPosition}
+          />
+          <SheetBlob
+            id="sheetBlobCyan"
+            size={320}
+            color={colors.blobCyan}
+            style={styles.blobCyanPosition}
+          />
           <ScrollView
             contentContainerStyle={[
               styles.sheetContent,
@@ -81,7 +117,7 @@ export function AuthShell({ title, subtitle, heroAccessory, onBack, children }: 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.heroBottom,
+    backgroundColor: colors.heroBase,
   },
   hero: {
     paddingHorizontal: spacing.xxl,
@@ -128,24 +164,15 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
     gap: spacing.xl,
   },
-  blobGold: {
+  blob: {
     position: 'absolute',
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: colors.blobGold,
+  },
+  blobGoldPosition: {
     top: -90,
     right: -80,
-    opacity: 0.8,
   },
-  blobCyan: {
-    position: 'absolute',
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: colors.blobCyan,
+  blobCyanPosition: {
     bottom: -140,
     left: -120,
-    opacity: 0.9,
   },
 });

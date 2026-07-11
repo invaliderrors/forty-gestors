@@ -1,0 +1,10 @@
+# Qué NO se sube a EAS Build (el proyecto no es repo git, EAS usa este archivo)
+node_modules/
+.expo/
+dist/
+web-build/
+demo-template/
+.claude/
+.vscode/
+*.log
+.DS_Store
