@@ -2,35 +2,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 
 import { FortuLogo } from '@/components/shared/FortuLogo';
-import { prizeCategoryLabel, prizeSummary, type PrizeSpec } from '@/domain/rifa/types';
+import { prizeSummary, type PrizeSpec } from '@/domain/rifa/types';
 import { formatCop } from '@/domain/shared/money';
 import { ticketPreviewStyles as styles } from '@/styles/rifas/ticketPreview.styles';
 import { colors } from '@/theme';
 
 type TicketPreviewProps = {
   name: string;
-  /** Premio principal del plan. */
-  prize: PrizeSpec;
-  /** Cantidad de premios adicionales al principal. */
-  additionalPrizeCount?: number;
+  /** Plan de premios completo; el primero es el principal. */
+  prizes: readonly PrizeSpec[];
   ticketPrice: number;
   drawDateDisplay: string;
 };
 
 /**
- * Ticket digital de la rifa (fase 2.2 del PDF): boleta de muestra con la
- * información técnica del premio y el sello de Coljuegos — que aparece
- * "en trámite" hasta que llegue la autorización real por el backend.
+ * Ticket digital de la rifa (fase 2.2 del PDF): boleta de muestra con el
+ * plan de premios y el sello de Coljuegos — que aparece "en trámite"
+ * hasta que llegue la autorización real por el backend.
  */
-export function TicketPreview({
-  name,
-  prize,
-  additionalPrizeCount = 0,
-  ticketPrice,
-  drawDateDisplay,
-}: TicketPreviewProps) {
-  const summary = prizeSummary(prize);
-
+export function TicketPreview({ name, prizes, ticketPrice, drawDateDisplay }: TicketPreviewProps) {
   return (
     <View style={styles.ticket}>
       <View style={styles.header}>
@@ -42,13 +32,22 @@ export function TicketPreview({
         <Text style={styles.name} numberOfLines={2}>
           {name}
         </Text>
-        <Text style={styles.prize} numberOfLines={2}>
-          {prizeCategoryLabel(prize.category)}
-          {summary ? ` — ${summary}` : ''} · {formatCop(prize.commercialValue)}
-          {additionalPrizeCount > 0
-            ? ` · +${additionalPrizeCount} premio${additionalPrizeCount > 1 ? 's' : ''} más`
-            : ''}
-        </Text>
+
+        <View style={styles.prizeList}>
+          {prizes.map((prize, index) => (
+            <View key={index} style={styles.prizeRow}>
+              <Ionicons
+                name={index === 0 ? 'trophy' : 'gift'}
+                size={14}
+                color={index === 0 ? colors.ctaDepth : colors.accentDeep}
+                style={styles.prizeIcon}
+              />
+              <Text style={styles.prizeText}>{prizeSummary(prize) || 'Premio'}</Text>
+              <Text style={styles.prizeValue}>{formatCop(prize.commercialValue)}</Text>
+            </View>
+          ))}
+        </View>
+
         <View style={styles.detailsRow}>
           <View style={styles.detailBlock}>
             <Text style={styles.detailLabel}>Sorteo</Text>

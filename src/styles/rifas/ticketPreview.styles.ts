@@ -37,11 +37,29 @@ export const ticketPreviewStyles = StyleSheet.create({
     fontSize: fontSizes.title,
     color: colors.textPrimary,
   },
-  prize: {
+  prizeList: {
+    gap: 6,
+    marginTop: 2,
+  },
+  prizeRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  prizeIcon: {
+    marginTop: 2,
+  },
+  prizeText: {
+    flex: 1,
     fontFamily: fonts.medium,
     fontSize: fontSizes.caption,
     lineHeight: 18,
     color: colors.textSecondary,
+  },
+  prizeValue: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.caption,
+    color: colors.textPrimary,
   },
   detailsRow: {
     flexDirection: 'row',

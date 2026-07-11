@@ -31,7 +31,6 @@ export function ReviewStep({ wizard }: ReviewStepProps) {
     commercialValue: Number.parseInt(prize.commercialValueRaw, 10) || 0,
     swornDeclaration: prize.swornAccepted,
   }));
-  const principal = plan[0];
   const totalValue = totalPrizeValue(plan);
 
   return (
@@ -44,8 +43,7 @@ export function ReviewStep({ wizard }: ReviewStepProps) {
 
       <TicketPreview
         name={emision.name}
-        prize={principal}
-        additionalPrizeCount={plan.length - 1}
+        prizes={plan}
         ticketPrice={Number.parseInt(emision.ticketPriceRaw, 10) || 0}
         drawDateDisplay={emision.drawDateRaw}
       />
