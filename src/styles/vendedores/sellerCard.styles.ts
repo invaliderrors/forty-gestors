@@ -74,9 +74,22 @@ export const sellerCardStyles = StyleSheet.create({
   statusLabelInactivo: {
     color: colors.textMuted,
   },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   actionLink: {
     paddingVertical: 2,
     paddingHorizontal: spacing.xs,
+  },
+  trashButton: {
+    width: 26,
+    height: 26,
+    borderRadius: radii.sm,
+    backgroundColor: colors.dangerSoftBg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionPressed: {
     opacity: 0.6,
@@ -95,10 +108,29 @@ export const sellerCardStyles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.surfaceBorder,
   },
-  metaLine: {
-    fontFamily: fonts.medium,
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  statBlock: {
+    gap: 2,
+  },
+  statBlockEnd: {
+    alignItems: 'flex-end',
+  },
+  statLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: 9,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
+  },
+  statValue: {
+    fontFamily: fonts.semibold,
     fontSize: fontSizes.caption,
-    color: colors.textSecondary,
+    color: colors.textPrimary,
   },
   permissionsLine: {
     fontFamily: fonts.regular,

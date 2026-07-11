@@ -30,7 +30,7 @@ export const SELLER_PERMISSIONS: readonly {
 export type SellerStatus = 'invitado' | 'activo' | 'inactivo';
 
 export const SELLER_STATUS_LABEL: Record<SellerStatus, string> = {
-  invitado: 'Invitación pendiente',
+  invitado: 'Pendiente',
   activo: 'Activo',
   inactivo: 'Inactivo',
 };

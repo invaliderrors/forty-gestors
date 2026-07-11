@@ -1,6 +1,13 @@
+import { InvalidInvitationCodeError } from '@/domain/auth/errors';
+import type { Session } from '@/domain/auth/types';
 import type { SellerRepository } from '@/domain/vendedores/SellerRepository';
 import type { Seller, SellerDraft } from '@/domain/vendedores/types';
-import { createSellerNumber, mockDb, simulateLatency } from '@/infrastructure/mock/mockDb';
+import {
+  createMockId,
+  createSellerNumber,
+  mockDb,
+  simulateLatency,
+} from '@/infrastructure/mock/mockDb';
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -43,5 +50,38 @@ export class MockSellerRepository implements SellerRepository {
     if (seller) {
       seller.status = status;
     }
+  }
+
+  async remove(id: string): Promise<void> {
+    await simulateLatency(400);
+    mockDb.sellers = mockDb.sellers.filter((entry) => entry.id !== id);
+  }
+
+  async findByInvitationCode(code: string): Promise<Seller | null> {
+    await simulateLatency(500);
+    return (
+      mockDb.sellers.find(
+        (entry) => entry.invitationCode === code.trim().toUpperCase() && entry.status === 'invitado',
+      ) ?? null
+    );
+  }
+
+  async activate(code: string, password: string): Promise<Session> {
+    await simulateLatency(900);
+    const seller = mockDb.sellers.find(
+      (entry) => entry.invitationCode === code.trim().toUpperCase() && entry.status === 'invitado',
+    );
+    if (!seller) {
+      throw new InvalidInvitationCodeError();
+    }
+    seller.status = 'activo';
+    const userId = createMockId('usr');
+    mockDb.users.set(seller.email, {
+      userId,
+      email: seller.email,
+      password,
+      displayName: seller.fullName,
+    });
+    return { userId, email: seller.email, displayName: seller.fullName };
   }
 }

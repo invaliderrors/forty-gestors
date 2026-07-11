@@ -31,3 +31,12 @@ export class InvalidOtpError extends AppError {
     super('AUTH/OTP_INVALID', 'El código no es correcto. Revísalo e intenta de nuevo.');
   }
 }
+
+export class InvalidInvitationCodeError extends AppError {
+  constructor() {
+    super(
+      'SELLER/INVITATION_INVALID',
+      'El código no es válido o ya fue usado. Pídele a tu gestor que lo verifique.',
+    );
+  }
+}

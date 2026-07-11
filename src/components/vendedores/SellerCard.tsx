@@ -19,10 +19,11 @@ type SellerCardProps = {
   seller: Seller;
   isBusy: boolean;
   onToggleStatus: () => void;
+  onDelete: () => void;
 };
 
-/** Card compacta de un vendedor: identidad + estado y acción a la derecha. */
-export function SellerCard({ seller, isBusy, onToggleStatus }: SellerCardProps) {
+/** Card compacta de un vendedor: identidad, estado, stats simétricas y acciones. */
+export function SellerCard({ seller, isBusy, onToggleStatus, onDelete }: SellerCardProps) {
   const { session } = useSession();
   const invitationShare = useInvitationShare();
 
@@ -38,12 +39,6 @@ export function SellerCard({ seller, isBusy, onToggleStatus }: SellerCardProps) 
       : seller.status === 'activo'
         ? styles.statusLabelActivo
         : styles.statusLabelInactivo;
-
-  const metaParts = [
-    seller.id,
-    seller.commissionPercent > 0 ? `${seller.commissionPercent}% comisión` : null,
-    `${seller.soldTickets} vendidas`,
-  ].filter(Boolean);
 
   const permissionLabels = SELLER_PERMISSIONS.filter((entry) =>
     seller.permissions.includes(entry.value),
@@ -89,33 +84,64 @@ export function SellerCard({ seller, isBusy, onToggleStatus }: SellerCardProps) 
           {isBusy ? (
             <LoadingDots color={colors.textMuted} size={4} />
           ) : (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                seller.status === 'inactivo' ? 'Activar vendedor' : 'Desactivar vendedor'
-              }
-              onPress={onToggleStatus}
-              hitSlop={8}
-              style={({ pressed }) => [styles.actionLink, pressed && styles.actionPressed]}
-            >
-              <Text
-                style={[
-                  styles.actionLabel,
-                  seller.status === 'inactivo' ? styles.actionActivate : styles.actionDeactivate,
-                ]}
+            <View style={styles.actionsRow}>
+              {seller.status !== 'invitado' ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    seller.status === 'inactivo' ? 'Activar vendedor' : 'Desactivar vendedor'
+                  }
+                  onPress={onToggleStatus}
+                  hitSlop={8}
+                  style={({ pressed }) => [styles.actionLink, pressed && styles.actionPressed]}
+                >
+                  <Text
+                    style={[
+                      styles.actionLabel,
+                      seller.status === 'inactivo'
+                        ? styles.actionActivate
+                        : styles.actionDeactivate,
+                    ]}
+                  >
+                    {seller.status === 'inactivo' ? 'Activar' : 'Desactivar'}
+                  </Text>
+                </Pressable>
+              ) : null}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={
+                  seller.status === 'invitado' ? 'Eliminar invitación' : 'Eliminar vendedor'
+                }
+                onPress={onDelete}
+                hitSlop={8}
+                style={({ pressed }) => [styles.trashButton, pressed && styles.actionPressed]}
               >
-                {seller.status === 'inactivo' ? 'Activar' : 'Desactivar'}
-              </Text>
-            </Pressable>
+                <Ionicons name="trash-outline" size={15} color={colors.danger} />
+              </Pressable>
+            </View>
           )}
         </View>
       </View>
 
       <View style={styles.divider} />
 
-      <Text style={styles.metaLine} numberOfLines={1}>
-        {metaParts.join(' · ')}
-      </Text>
+      <View style={styles.statsRow}>
+        <View style={styles.statBlock}>
+          <Text style={styles.statLabel}>Número</Text>
+          <Text style={styles.statValue}>{seller.id}</Text>
+        </View>
+        <View style={styles.statBlock}>
+          <Text style={styles.statLabel}>Comisión</Text>
+          <Text style={styles.statValue}>
+            {seller.commissionPercent > 0 ? `${seller.commissionPercent}%` : '—'}
+          </Text>
+        </View>
+        <View style={[styles.statBlock, styles.statBlockEnd]}>
+          <Text style={styles.statLabel}>Vendidas</Text>
+          <Text style={styles.statValue}>{seller.soldTickets}</Text>
+        </View>
+      </View>
+
       {permissionLabels ? (
         <Text style={styles.permissionsLine} numberOfLines={1}>
           Permisos: {permissionLabels}

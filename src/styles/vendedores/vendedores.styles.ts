@@ -49,6 +49,38 @@ export const vendedoresStyles = StyleSheet.create({
     paddingVertical: spacing.xxxl,
     alignItems: 'center',
   },
+  filterRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  filterChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceBorder,
+    backgroundColor: colors.surface,
+  },
+  filterChipSelected: {
+    borderColor: colors.ctaFace,
+    backgroundColor: colors.goldSoftBg,
+  },
+  filterLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSizes.micro,
+    color: colors.textSecondary,
+  },
+  filterLabelSelected: {
+    color: colors.textPrimary,
+  },
+  filterEmpty: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.caption,
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingVertical: spacing.xl,
+  },
   list: {
     gap: spacing.lg,
   },

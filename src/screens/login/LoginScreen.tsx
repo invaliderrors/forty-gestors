@@ -80,6 +80,11 @@ export function LoginScreen() {
           variant="secondary"
           onPress={() => router.push('/register')}
         />
+        <ClayButton
+          label="¿Eres vendedor? Activa tu cuenta"
+          variant="ghost"
+          onPress={() => router.push('/activar-vendedor')}
+        />
       </View>
 
       <Text style={styles.demoHint}>Cuenta demo: gestor@fortu.app · Fortu123!</Text>

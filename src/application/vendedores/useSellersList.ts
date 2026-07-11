@@ -40,5 +40,15 @@ export function useSellersList() {
     }
   };
 
-  return { state, busySellerId, toggleStatus };
+  const removeSeller = async (id: string) => {
+    setBusySellerId(id);
+    try {
+      await sellers.remove(id);
+      await load();
+    } finally {
+      setBusySellerId(null);
+    }
+  };
+
+  return { state, busySellerId, toggleStatus, removeSeller };
 }
