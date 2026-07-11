@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ProfileMenuGroup } from '@/components/perfil/ProfileMenuGroup';
 import { ProfileMenuRow } from '@/components/perfil/ProfileMenuRow';
 import { ProfileQuickActions } from '@/components/perfil/ProfileQuickActions';
 import { ProfileStatsStrip } from '@/components/perfil/ProfileStatsStrip';
@@ -84,48 +85,63 @@ export function PerfilScreen() {
 
       <ProfileStatsStrip activeRifas={0} soldTickets={0} collectedLabel="$ 0" />
 
-      <Text style={styles.sectionEyebrow}>CUENTA</Text>
       <View style={styles.menuStack}>
-        <ProfileMenuRow
-          icon="id-card-outline"
-          label="Tu información"
-          sub="Datos personales y documentos"
-          onPress={comingSoon('La edición de tu información')}
+        <ProfileMenuGroup
+          icon="settings-outline"
+          label="Cuenta"
+          sub="Tu información, marca, seguridad y notificaciones"
+          items={[
+            {
+              icon: 'id-card-outline',
+              label: 'Tu información',
+              sub: 'Datos personales y documentos',
+              onPress: comingSoon('La edición de tu información'),
+            },
+            {
+              icon: 'color-palette-outline',
+              label: 'Mi marca',
+              sub: 'Tu logo y tus colores en la app',
+              onPress: comingSoon('La personalización de tu marca'),
+            },
+            {
+              icon: 'lock-closed-outline',
+              label: 'Seguridad',
+              sub: 'Contraseña y sesiones activas',
+              onPress: comingSoon('El módulo de seguridad'),
+            },
+            {
+              icon: 'notifications-outline',
+              label: 'Notificaciones',
+              sub: 'Alertas de ventas y sorteos',
+              onPress: comingSoon('Las preferencias de notificación'),
+            },
+          ]}
         />
-        <ProfileMenuRow
-          icon="color-palette-outline"
-          label="Mi marca"
-          sub="Tu logo y tus colores en la app"
-          onPress={comingSoon('La personalización de tu marca')}
-        />
-        <ProfileMenuRow
-          icon="lock-closed-outline"
-          label="Seguridad"
-          sub="Contraseña y sesiones activas"
-          onPress={comingSoon('El módulo de seguridad')}
-        />
-        <ProfileMenuRow
-          icon="notifications-outline"
-          label="Notificaciones"
-          sub="Alertas de ventas y sorteos"
-          onPress={comingSoon('Las preferencias de notificación')}
-        />
-      </View>
-
-      <Text style={styles.sectionEyebrow}>NEGOCIO</Text>
-      <View style={styles.menuStack}>
-        <ProfileMenuRow
-          icon="wallet-outline"
-          label="Billetera"
-          sub="Ingresos, tesorería y comisiones"
-          meta="$ 0"
-          onPress={() => router.navigate('/billetera')}
-        />
-        <ProfileMenuRow
-          icon="document-text-outline"
-          label="Reportes y trazabilidad"
-          sub="Transacciones al Operador y Coljuegos"
-          onPress={comingSoon('La trazabilidad de transacciones')}
+        <ProfileMenuGroup
+          icon="briefcase-outline"
+          label="Mi negocio"
+          sub="Billetera, vendedores, reportes y trazabilidad"
+          items={[
+            {
+              icon: 'wallet-outline',
+              label: 'Billetera',
+              sub: 'Ingresos, tesorería y comisiones',
+              meta: '$ 0',
+              onPress: () => router.navigate('/billetera'),
+            },
+            {
+              icon: 'people-outline',
+              label: 'Vendedores',
+              sub: 'Tu equipo y sus permisos',
+              onPress: comingSoon('La gestión de vendedores'),
+            },
+            {
+              icon: 'document-text-outline',
+              label: 'Reportes y trazabilidad',
+              sub: 'Transacciones al Operador y Coljuegos',
+              onPress: comingSoon('La trazabilidad de transacciones'),
+            },
+          ]}
         />
         <ProfileMenuRow
           icon="help-buoy-outline"
@@ -231,16 +247,8 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.micro,
     color: colors.ctaFace,
   },
-  sectionEyebrow: {
-    fontFamily: fonts.bold,
-    fontSize: 10.5,
-    letterSpacing: 2.3,
-    textTransform: 'uppercase',
-    color: colors.textMuted,
-    marginTop: spacing.sm,
-  },
   menuStack: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   version: {
     textAlign: 'center',
