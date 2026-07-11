@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "fortu-gestor",
-    "slug": "fortu-gestor",
+    "slug": "project-test2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -37,6 +37,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ddf20e41-187f-4c47-9d8e-fe26adeb7eb3"
+      }
+    },
+    "owner": "axiasmedia"
   }
 }
