@@ -3,6 +3,48 @@ import { StyleSheet } from 'react-native';
 import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
 
 export const rifaDetailStyles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+  content: {
+    paddingHorizontal: spacing.xxl,
+    gap: spacing.xl,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceBorder,
+    borderBottomWidth: 4,
+    borderBottomColor: colors.surfaceDepth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButtonPressed: {
+    opacity: 0.65,
+  },
+  headerText: {
+    flex: 1,
+  },
+  title: {
+    fontFamily: fonts.display,
+    fontSize: fontSizes.title,
+    color: colors.textPrimary,
+  },
+  subtitle: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.caption,
+    color: colors.textSecondary,
+    marginTop: 1,
+  },
   loading: {
     paddingVertical: spacing.xxxl,
     alignItems: 'center',
@@ -57,7 +99,7 @@ export const rifaDetailStyles = StyleSheet.create({
     color: colors.textPrimary,
     marginTop: spacing.sm,
   },
-  salesCard: {
+  salesSection: {
     gap: spacing.md,
   },
   salesHeader: {
@@ -91,7 +133,7 @@ export const rifaDetailStyles = StyleSheet.create({
     fontSize: fontSizes.caption,
     color: colors.textMuted,
   },
-  numbersCard: {
+  numbersSection: {
     gap: spacing.md,
   },
   numbersRow: {
