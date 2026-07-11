@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { RifaCalculator } from '@/application/rifa/useRifaCalculator';
+import { ClayCard } from '@/components/shared/clay/ClayCard';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { formatThousands } from '@/domain/shared/money';
 import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
@@ -10,10 +11,10 @@ type RifaCalculatorCardProps = {
   calculator: RifaCalculator;
 };
 
-/** Formulario de la emisión: cantidad de boletas × valor unitario, directo sobre la vista. */
+/** Formulario de la emisión: cantidad de boletas × valor unitario, en su card clay. */
 export function RifaCalculatorCard({ calculator }: RifaCalculatorCardProps) {
   return (
-    <View style={styles.card}>
+    <ClayCard style={styles.card}>
       <View style={styles.header}>
         <View style={styles.iconBubble}>
           <Ionicons name="calculator-outline" size={22} color={colors.textOnGold} />
@@ -42,7 +43,7 @@ export function RifaCalculatorCard({ calculator }: RifaCalculatorCardProps) {
         icon="cash-outline"
         helper="Precio de venta al público por cada número."
       />
-    </View>
+    </ClayCard>
   );
 }
 
