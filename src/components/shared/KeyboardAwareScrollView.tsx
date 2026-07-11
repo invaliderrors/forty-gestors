@@ -31,10 +31,23 @@ type KeyboardAwareScrollViewProps = ScrollViewProps & {
  * JS puro — sin módulo nativo, sin rebuild.
  */
 export const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrollViewProps>(
-  ({ extraScrollHeight = 28, onScroll, keyboardShouldPersistTaps, children, ...rest }, ref) => {
+  (
+    {
+      extraScrollHeight = 28,
+      onScroll,
+      onLayout,
+      onContentSizeChange,
+      keyboardShouldPersistTaps,
+      children,
+      ...rest
+    },
+    ref,
+  ) => {
     const innerRef = useRef<ScrollView>(null);
     useImperativeHandle(ref, () => innerRef.current as ScrollView);
     const offsetRef = useRef(0);
+    const viewportHeightRef = useRef(0);
+    const isKeyboardVisibleRef = useRef(false);
     const [keyboardPad, setKeyboardPad] = useState(0);
 
     useEffect(() => {
@@ -45,6 +58,7 @@ export const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrol
 
       const showSubscription = Keyboard.addListener(showEvent, (event) => {
         const keyboardTop = event.endCoordinates.screenY;
+        isKeyboardVisibleRef.current = true;
         setKeyboardPad(event.endCoordinates.height);
 
         const focused = TextInput.State.currentlyFocusedInput?.();
@@ -67,6 +81,7 @@ export const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrol
       });
 
       const hideSubscription = Keyboard.addListener(hideEvent, () => {
+        isKeyboardVisibleRef.current = false;
         setKeyboardPad(0);
       });
 
@@ -87,6 +102,24 @@ export const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrol
         scrollEventThrottle={16}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps ?? 'handled'}
         onScroll={handleScroll}
+        onLayout={(event) => {
+          viewportHeightRef.current = event.nativeEvent.layout.height;
+          onLayout?.(event);
+        }}
+        onContentSizeChange={(width, height) => {
+          // Al cerrarse el teclado el espaciador desaparece y el contenido se
+          // encoge; si el offset quedó más allá del nuevo máximo, el scroll
+          // quedaría "colgado" mostrando todo corrido hacia arriba hasta que
+          // el usuario toque. Se re-encuadra solo.
+          if (!isKeyboardVisibleRef.current) {
+            const maxOffset = Math.max(0, height - viewportHeightRef.current);
+            if (offsetRef.current > maxOffset) {
+              innerRef.current?.scrollTo({ y: maxOffset, animated: false });
+              offsetRef.current = maxOffset;
+            }
+          }
+          onContentSizeChange?.(width, height);
+        }}
         {...rest}
       >
         {children}
