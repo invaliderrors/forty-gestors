@@ -105,6 +105,17 @@ function keywordsFor(context: AnalysisContext): readonly string[] {
         'MATRICULA MERCANTIL',
         'REPRESENTANTE LEGAL',
       ];
+    case 'factura_compra':
+      return [
+        'FACTURA ELECTRONICA DE VENTA',
+        'FACTURA DE VENTA',
+        'FACTURA',
+        'CONCESIONARIO',
+        'CONSTRUCTORA',
+        'TOTAL A PAGAR',
+        'DIAN',
+        'NIT',
+      ];
   }
 }
 
@@ -161,6 +172,8 @@ function rejectionReasonFor(checkId: DocumentCheck['id'], context: AnalysisConte
           return 'La imagen no parece un RUT de la DIAN. Verifica y súbela de nuevo.';
         case 'cert_representacion':
           return 'La imagen no parece un certificado de Cámara de Comercio. Verifica y súbela de nuevo.';
+        case 'factura_compra':
+          return 'La imagen no parece una factura de compra. Sube la factura original del concesionario o la constructora.';
       }
       break;
     }

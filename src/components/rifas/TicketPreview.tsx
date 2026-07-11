@@ -9,7 +9,10 @@ import { colors } from '@/theme';
 
 type TicketPreviewProps = {
   name: string;
+  /** Premio principal del plan. */
   prize: PrizeSpec;
+  /** Cantidad de premios adicionales al principal. */
+  additionalPrizeCount?: number;
   ticketPrice: number;
   drawDateDisplay: string;
 };
@@ -19,7 +22,13 @@ type TicketPreviewProps = {
  * información técnica del premio y el sello de Coljuegos — que aparece
  * "en trámite" hasta que llegue la autorización real por el backend.
  */
-export function TicketPreview({ name, prize, ticketPrice, drawDateDisplay }: TicketPreviewProps) {
+export function TicketPreview({
+  name,
+  prize,
+  additionalPrizeCount = 0,
+  ticketPrice,
+  drawDateDisplay,
+}: TicketPreviewProps) {
   const summary = prizeSummary(prize);
 
   return (
@@ -36,6 +45,9 @@ export function TicketPreview({ name, prize, ticketPrice, drawDateDisplay }: Tic
         <Text style={styles.prize} numberOfLines={2}>
           {prizeCategoryLabel(prize.category)}
           {summary ? ` — ${summary}` : ''} · {formatCop(prize.commercialValue)}
+          {additionalPrizeCount > 0
+            ? ` · +${additionalPrizeCount} premio${additionalPrizeCount > 1 ? 's' : ''} más`
+            : ''}
         </Text>
         <View style={styles.detailsRow}>
           <View style={styles.detailBlock}>

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 
 import { ClayCard } from '@/components/shared/clay/ClayCard';
-import { prizeSummary, RIFA_STATUS_LABEL, type Rifa } from '@/domain/rifa/types';
+import { prizeSummary, RIFA_STATUS_LABEL, totalPrizeValue, type Rifa } from '@/domain/rifa/types';
 import { drawDateToDisplay } from '@/domain/rifa/validators';
 import { formatCop } from '@/domain/shared/money';
 import { rifaCardStyles as styles } from '@/styles/rifas/rifaCard.styles';
@@ -16,7 +16,9 @@ type RifaCardProps = {
 export function RifaCard({ rifa }: RifaCardProps) {
   const isRevision = rifa.status === 'en_revision';
   const soldRatio = rifa.ticketCount > 0 ? rifa.soldTickets / rifa.ticketCount : 0;
-  const summary = prizeSummary(rifa.prize);
+  const principal = rifa.prizes[0];
+  const summary = principal ? prizeSummary(principal) : '';
+  const extraCount = rifa.prizes.length - 1;
 
   return (
     <ClayCard style={styles.card}>
@@ -45,7 +47,8 @@ export function RifaCard({ rifa }: RifaCardProps) {
 
       {summary ? (
         <Text style={styles.prizeSummary} numberOfLines={2}>
-          Premio: {summary} · {formatCop(rifa.prize.commercialValue)}
+          Premio: {summary} · {formatCop(totalPrizeValue(rifa.prizes))}
+          {extraCount > 0 ? ` (${extraCount + 1} premios)` : ''}
         </Text>
       ) : null}
 

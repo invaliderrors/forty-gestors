@@ -1,3 +1,5 @@
+import type { PickedFile } from '@/domain/media/types';
+
 /**
  * Dominio de la rifa del gestor (fases 1.1 y 2.2 del PDF): parámetros de
  * la emisión + plan de premios por categoría de bien.
@@ -20,6 +22,7 @@ export function prizeCategoryLabel(category: PrizeCategory): string {
 export type PrizeSpec = {
   category: PrizeCategory;
   /** Vehículo */
+  vehicleType?: string;
   brand?: string;
   model?: string;
   year?: string;
@@ -28,8 +31,18 @@ export type PrizeSpec = {
   city?: string;
   /** Inmueble / otro bien */
   description?: string;
-  /** Precio de mercado; debe cumplir el tope mínimo respecto a la emisión. */
+  /** Precio de mercado; el plan completo debe cumplir el tope mínimo. */
   commercialValue: number;
+};
+
+/**
+ * Premio del plan con sus soportes legales: declaración juramentada de
+ * que el bien es nuevo (de paquete) y la factura de compra original del
+ * concesionario o la constructora.
+ */
+export type RifaPrize = PrizeSpec & {
+  swornDeclaration: boolean;
+  invoice?: PickedFile;
 };
 
 export type RifaStatus = 'en_revision' | 'autorizada' | 'activa';
@@ -46,7 +59,8 @@ export type RifaDraft = {
   ticketPrice: number;
   /** Fecha del sorteo en ISO (AAAA-MM-DD). */
   drawDate: string;
-  prize: PrizeSpec;
+  /** Plan de premios: el primero SIEMPRE es el principal (y el de mayor valor). */
+  prizes: RifaPrize[];
 };
 
 export type Rifa = RifaDraft & {
@@ -66,4 +80,14 @@ export function prizeSummary(prize: PrizeSpec): string {
     return [prize.description, prize.city].filter(Boolean).join(' · ');
   }
   return prize.description ?? '';
+}
+
+/** Valor total del plan de premios. */
+export function totalPrizeValue(prizes: readonly PrizeSpec[]): number {
+  return prizes.reduce((sum, prize) => sum + prize.commercialValue, 0);
+}
+
+/** ¿La categoría exige soportes (declaración juramentada + factura)? */
+export function requiresOwnershipProof(category: PrizeCategory): boolean {
+  return category === 'vehiculo' || category === 'inmueble';
 }

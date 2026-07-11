@@ -54,5 +54,8 @@ export function buildAnalysisContext(kind: DocumentKind, identity: IdentityData)
       return { kind, expectedNumber: identity.nit.split('-')[0] };
     case 'cert_representacion':
       return { kind };
+    case 'factura_compra':
+      // La factura pertenece al flujo de rifas; no cruza datos de identidad.
+      return { kind };
   }
 }

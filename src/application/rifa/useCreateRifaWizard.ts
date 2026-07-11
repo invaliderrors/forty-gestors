@@ -1,13 +1,22 @@
 import { useMemo, useReducer } from 'react';
 
+import { analyzeDocument } from '@/application/registration/analyzeDocument';
 import { AppError } from '@/domain/auth/errors';
+import type { DocumentAnalysis, DocumentAttachment } from '@/domain/documents/analysis';
+import type { PickedFile } from '@/domain/media/types';
 import { computeRifaProjection, type RifaProjection } from '@/domain/rifa/normative';
-import type { PrizeCategory, PrizeSpec, Rifa } from '@/domain/rifa/types';
+import {
+  requiresOwnershipProof,
+  type PrizeCategory,
+  type Rifa,
+  type RifaPrize,
+} from '@/domain/rifa/types';
 import { isValidVehicleYear, parseDrawDate } from '@/domain/rifa/validators';
+import { OTHER_BRAND } from '@/domain/rifa/vehicles';
 import { formatCop } from '@/domain/shared/money';
 import { useServices } from '@/providers/ServicesProvider';
 
-export const CREATE_RIFA_STEPS = ['Emisión', 'Premio', 'Revisión'] as const;
+export const CREATE_RIFA_STEPS = ['Emisión', 'Premios', 'Revisión'] as const;
 
 export type CreateRifaStep = 0 | 1 | 2;
 
@@ -19,15 +28,21 @@ type EmisionData = {
   drawDateRaw: string;
 };
 
-type PremioData = {
+export type PrizeFormData = {
   category: PrizeCategory | null;
+  vehicleType: string;
   brand: string;
+  brandOther: string;
   model: string;
   year: string;
   color: string;
   city: string;
   description: string;
   commercialValueRaw: string;
+  /** Declaración juramentada: bien nuevo (de paquete) con factura original. */
+  swornAccepted: boolean;
+  /** Soporte de propiedad: factura de compra original (con verificación OCR). */
+  invoice: DocumentAttachment | null;
 };
 
 type SubmitState =
@@ -40,14 +55,20 @@ type WizardState = {
   step: CreateRifaStep;
   showErrors: boolean;
   emision: EmisionData;
-  premio: PremioData;
+  prizes: PrizeFormData[];
   submit: SubmitState;
 };
 
 type WizardAction =
   | { type: 'set_emision'; field: keyof EmisionData; value: string }
-  | { type: 'set_premio'; field: keyof PremioData; value: string }
-  | { type: 'set_category'; category: PrizeCategory }
+  | { type: 'set_prize_field'; index: number; field: keyof PrizeFormData; value: string }
+  | { type: 'set_prize_category'; index: number; category: PrizeCategory }
+  | { type: 'toggle_prize_sworn'; index: number }
+  | { type: 'attach_invoice'; index: number; file: PickedFile }
+  | { type: 'invoice_analyzed'; index: number; uri: string; analysis: DocumentAnalysis }
+  | { type: 'remove_invoice'; index: number }
+  | { type: 'add_prize' }
+  | { type: 'remove_prize'; index: number }
   | { type: 'show_errors' }
   | { type: 'go_next' }
   | { type: 'go_back' }
@@ -55,31 +76,94 @@ type WizardAction =
   | { type: 'submit_failed'; message: string }
   | { type: 'submit_succeeded'; rifa: Rifa };
 
-const initialState: WizardState = {
-  step: 0,
-  showErrors: false,
-  emision: { name: '', ticketCountRaw: '', ticketPriceRaw: '', drawDateRaw: '' },
-  premio: {
+function emptyPrize(): PrizeFormData {
+  return {
     category: null,
+    vehicleType: '',
     brand: '',
+    brandOther: '',
     model: '',
     year: '',
     color: '',
     city: '',
     description: '',
     commercialValueRaw: '',
-  },
+    swornAccepted: false,
+    invoice: null,
+  };
+}
+
+const initialState: WizardState = {
+  step: 0,
+  showErrors: false,
+  emision: { name: '', ticketCountRaw: '', ticketPriceRaw: '', drawDateRaw: '' },
+  prizes: [emptyPrize()],
   submit: { status: 'idle' },
 };
+
+function updatePrize(
+  prizes: PrizeFormData[],
+  index: number,
+  patch: Partial<PrizeFormData>,
+): PrizeFormData[] {
+  return prizes.map((prize, i) => (i === index ? { ...prize, ...patch } : prize));
+}
 
 function reducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
     case 'set_emision':
       return { ...state, emision: { ...state.emision, [action.field]: action.value } };
-    case 'set_premio':
-      return { ...state, premio: { ...state.premio, [action.field]: action.value } };
-    case 'set_category':
-      return { ...state, premio: { ...state.premio, category: action.category } };
+    case 'set_prize_field':
+      return {
+        ...state,
+        prizes: updatePrize(state.prizes, action.index, { [action.field]: action.value }),
+      };
+    case 'set_prize_category':
+      // Cambiar de categoría limpia specs y soportes: son requisitos distintos.
+      return {
+        ...state,
+        prizes: updatePrize(state.prizes, action.index, {
+          ...emptyPrize(),
+          category: action.category,
+          commercialValueRaw: state.prizes[action.index]?.commercialValueRaw ?? '',
+        }),
+      };
+    case 'toggle_prize_sworn':
+      return {
+        ...state,
+        prizes: updatePrize(state.prizes, action.index, {
+          swornAccepted: !state.prizes[action.index]?.swornAccepted,
+        }),
+      };
+    case 'attach_invoice':
+      return {
+        ...state,
+        prizes: updatePrize(state.prizes, action.index, {
+          invoice: { file: action.file, analysis: { status: 'analyzing' } },
+        }),
+      };
+    case 'invoice_analyzed': {
+      const current = state.prizes[action.index]?.invoice;
+      if (!current || current.file.uri !== action.uri) {
+        return state;
+      }
+      return {
+        ...state,
+        prizes: updatePrize(state.prizes, action.index, {
+          invoice: { ...current, analysis: action.analysis },
+        }),
+      };
+    }
+    case 'remove_invoice':
+      return { ...state, prizes: updatePrize(state.prizes, action.index, { invoice: null }) };
+    case 'add_prize':
+      return { ...state, prizes: [...state.prizes, emptyPrize()], showErrors: false };
+    case 'remove_prize':
+      // El principal (índice 0) no se elimina.
+      if (action.index === 0) {
+        return state;
+      }
+      return { ...state, prizes: state.prizes.filter((_, i) => i !== action.index) };
     case 'show_errors':
       return { ...state, showErrors: true };
     case 'go_next':
@@ -118,52 +202,114 @@ function validateEmision(emision: EmisionData): WizardErrors {
   return errors;
 }
 
-function validatePremio(premio: PremioData, projection: RifaProjection | null): WizardErrors {
+export function prizeErrorKey(index: number, field: string): string {
+  return `p${index}_${field}`;
+}
+
+function prizeValue(prize: PrizeFormData): number {
+  return Number.parseInt(prize.commercialValueRaw, 10) || 0;
+}
+
+function validatePrize(prize: PrizeFormData, index: number): WizardErrors {
   const errors: WizardErrors = {};
-  if (!premio.category) {
-    errors.category = 'Selecciona la categoría del bien.';
+  const key = (field: string) => prizeErrorKey(index, field);
+
+  if (!prize.category) {
+    errors[key('category')] = 'Selecciona la categoría del bien.';
     return errors;
   }
-  if (premio.category === 'vehiculo') {
-    if (premio.brand.trim().length < 2) {
-      errors.brand = 'Escribe la marca (ej: Renault).';
+
+  if (prize.category === 'vehiculo') {
+    if (!prize.vehicleType) {
+      errors[key('vehicleType')] = 'Selecciona el tipo de vehículo.';
     }
-    if (premio.model.trim().length < 2) {
-      errors.model = 'Escribe el modelo (ej: Logan).';
+    if (!prize.brand) {
+      errors[key('brand')] = 'Selecciona la marca.';
+    } else if (prize.brand === OTHER_BRAND && prize.brandOther.trim().length < 2) {
+      errors[key('brandOther')] = 'Escribe la marca.';
     }
-    if (!isValidVehicleYear(premio.year)) {
-      errors.year = 'Escribe un año válido (ej: 2025).';
+    if (prize.model.trim().length < 2) {
+      errors[key('model')] = 'Escribe el modelo (ej: Logan).';
     }
-    if (premio.color.trim().length < 3) {
-      errors.color = 'Escribe el color.';
+    if (!isValidVehicleYear(prize.year)) {
+      errors[key('year')] = 'Escribe un año válido (ej: 2026).';
     }
-  }
-  if (premio.category === 'inmueble') {
-    if (premio.city.trim().length < 3) {
-      errors.city = 'Escribe la ciudad del inmueble.';
-    }
-    if (premio.description.trim().length < 10) {
-      errors.description = 'Describe el inmueble (tipo, área, ubicación...).';
+    if (prize.color.trim().length < 3) {
+      errors[key('color')] = 'Escribe el color.';
     }
   }
-  if (premio.category === 'otro') {
-    if (premio.description.trim().length < 10) {
-      errors.description = 'Describe el bien que vas a rifar.';
+  if (prize.category === 'inmueble') {
+    if (prize.city.trim().length < 3) {
+      errors[key('city')] = 'Escribe la ciudad del inmueble.';
+    }
+    if (prize.description.trim().length < 10) {
+      errors[key('description')] = 'Describe el inmueble (tipo, área, ubicación...).';
     }
   }
-  const value = Number.parseInt(premio.commercialValueRaw, 10) || 0;
-  if (value <= 0) {
-    errors.commercialValue = 'Escribe el valor comercial del premio.';
-  } else if (projection && value < projection.prizeMinimum) {
-    // Cumplimiento legal (PDF): el premio no puede quedar por debajo del
-    // tope mínimo respecto a la emisión total.
-    errors.commercialValue = `Por norma, el premio no puede valer menos de ${formatCop(projection.prizeMinimum)} para esta emisión.`;
+  if (prize.category === 'otro' && prize.description.trim().length < 10) {
+    errors[key('description')] = 'Describe el bien que vas a rifar.';
+  }
+
+  if (prizeValue(prize) <= 0) {
+    errors[key('commercialValue')] = 'Escribe el valor comercial del premio.';
+  }
+
+  if (requiresOwnershipProof(prize.category)) {
+    if (!prize.swornAccepted) {
+      errors[key('sworn')] = 'Debes aceptar la declaración juramentada para continuar.';
+    }
+    if (!prize.invoice) {
+      errors[key('invoice')] = 'Adjunta la factura de compra original.';
+    } else if (prize.invoice.analysis.status === 'analyzing') {
+      errors[key('invoice')] = 'Estamos verificando la factura, espera un momento.';
+    } else if (prize.invoice.analysis.status === 'rejected') {
+      errors[key('invoice')] = 'La factura no pasó la verificación. Súbela de nuevo.';
+    }
   }
   return errors;
 }
 
+function validatePrizePlan(prizes: PrizeFormData[], projection: RifaProjection | null): WizardErrors {
+  const errors: WizardErrors = {};
+  for (const [index, prize] of prizes.entries()) {
+    Object.assign(errors, validatePrize(prize, index));
+  }
+
+  const principalValue = prizeValue(prizes[0]);
+  for (const [index, prize] of prizes.entries()) {
+    if (index > 0 && prizeValue(prize) > principalValue) {
+      errors[prizeErrorKey(index, 'commercialValue')] =
+        'El premio principal debe ser el de mayor valor.';
+    }
+  }
+
+  const total = prizes.reduce((sum, prize) => sum + prizeValue(prize), 0);
+  if (projection && total > 0 && total < projection.prizeMinimum) {
+    errors.prizePlanTotal = `Por norma, el valor total de tus premios (${formatCop(total)}) no puede ser menor a ${formatCop(projection.prizeMinimum)} para esta emisión.`;
+  }
+  return errors;
+}
+
+function toRifaPrize(prize: PrizeFormData): RifaPrize {
+  const brand =
+    prize.brand === OTHER_BRAND ? prize.brandOther.trim() : prize.brand.trim() || undefined;
+  return {
+    category: prize.category ?? 'otro',
+    vehicleType: prize.vehicleType || undefined,
+    brand: brand || undefined,
+    model: prize.model.trim() || undefined,
+    year: prize.year.trim() || undefined,
+    color: prize.color.trim() || undefined,
+    city: prize.city.trim() || undefined,
+    description: prize.description.trim() || undefined,
+    commercialValue: prizeValue(prize),
+    swornDeclaration: prize.swornAccepted,
+    invoice: prize.invoice?.file,
+  };
+}
+
 export function useCreateRifaWizard() {
-  const { rifas } = useServices();
+  const { rifas, documentScanner } = useServices();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const ticketCount = Number.parseInt(state.emision.ticketCountRaw, 10) || 0;
@@ -176,11 +322,11 @@ export function useCreateRifaWizard() {
       case 0:
         return validateEmision(state.emision);
       case 1:
-        return validatePremio(state.premio, projection);
+        return validatePrizePlan(state.prizes, projection);
       case 2:
         return {};
     }
-  }, [state.step, state.emision, state.premio, projection]);
+  }, [state.step, state.emision, state.prizes, projection]);
 
   const visibleErrors: WizardErrors = state.showErrors ? stepErrors : {};
 
@@ -192,30 +338,27 @@ export function useCreateRifaWizard() {
     dispatch({ type: 'go_next' });
   };
 
+  /** Adjunta la factura del premio y dispara su verificación (OCR + reglas). */
+  const attachInvoice = (index: number, file: PickedFile) => {
+    dispatch({ type: 'attach_invoice', index, file });
+    void analyzeDocument(documentScanner, file, { kind: 'factura_compra' }).then((analysis) => {
+      dispatch({ type: 'invoice_analyzed', index, uri: file.uri, analysis });
+    });
+  };
+
   const submit = async () => {
     const drawDate = parseDrawDate(state.emision.drawDateRaw);
-    const category = state.premio.category;
-    if (!drawDate || !category) {
+    if (!drawDate) {
       return;
     }
     dispatch({ type: 'submit_started' });
-    const prize: PrizeSpec = {
-      category,
-      brand: state.premio.brand.trim() || undefined,
-      model: state.premio.model.trim() || undefined,
-      year: state.premio.year.trim() || undefined,
-      color: state.premio.color.trim() || undefined,
-      city: state.premio.city.trim() || undefined,
-      description: state.premio.description.trim() || undefined,
-      commercialValue: Number.parseInt(state.premio.commercialValueRaw, 10) || 0,
-    };
     try {
       const rifa = await rifas.create({
         name: state.emision.name.trim(),
         ticketCount,
         ticketPrice,
         drawDate,
-        prize,
+        prizes: state.prizes.map(toRifaPrize),
       });
       dispatch({ type: 'submit_succeeded', rifa });
     } catch (error) {
@@ -237,9 +380,15 @@ export function useCreateRifaWizard() {
     goBack: () => dispatch({ type: 'go_back' }),
     setEmision: (field: keyof EmisionData, value: string) =>
       dispatch({ type: 'set_emision', field, value }),
-    setPremio: (field: keyof PremioData, value: string) =>
-      dispatch({ type: 'set_premio', field, value }),
-    setCategory: (category: PrizeCategory) => dispatch({ type: 'set_category', category }),
+    setPrizeField: (index: number, field: keyof PrizeFormData, value: string) =>
+      dispatch({ type: 'set_prize_field', index, field, value }),
+    setPrizeCategory: (index: number, category: PrizeCategory) =>
+      dispatch({ type: 'set_prize_category', index, category }),
+    togglePrizeSworn: (index: number) => dispatch({ type: 'toggle_prize_sworn', index }),
+    attachInvoice,
+    removeInvoice: (index: number) => dispatch({ type: 'remove_invoice', index }),
+    addPrize: () => dispatch({ type: 'add_prize' }),
+    removePrize: (index: number) => dispatch({ type: 'remove_prize', index }),
     submit,
   };
 }

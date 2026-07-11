@@ -54,7 +54,9 @@ export type DocumentKind =
   | 'rut_empresa'
   | 'cert_representacion'
   | 'cedula_rep_front'
-  | 'cedula_rep_back';
+  | 'cedula_rep_back'
+  /** Soporte de propiedad del premio de una rifa (factura del concesionario/constructora). */
+  | 'factura_compra';
 
 export type DocumentSlot = {
   kind: DocumentKind;
