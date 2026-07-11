@@ -12,6 +12,7 @@ import { AuthShell } from '@/components/shared/AuthShell';
 import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayProgressSteps } from '@/components/shared/clay/ClayProgressSteps';
 import type { PersonaType } from '@/domain/registration/types';
+import { useSession } from '@/providers/SessionProvider';
 import { spacing } from '@/theme';
 
 const STEP_COPY: Record<PersonaType, { title: string; subtitle: string }[]> = {
@@ -59,8 +60,9 @@ type RegisterScreenProps = {
 
 export function RegisterScreen({ personaType }: RegisterScreenProps) {
   const router = useRouter();
+  const { signIn } = useSession();
   const wizard = useRegisterWizard(personaType);
-  const { step, submit, phase, registration, otp, identity } = wizard.state;
+  const { step, submit, phase, registration, otp, identity, activatedSession } = wizard.state;
 
   if (phase === 'verification' && registration) {
     return (
@@ -85,12 +87,15 @@ export function RegisterScreen({ personaType }: RegisterScreenProps) {
       <AuthShell centerContent>
         <WelcomeView
           displayName={personaType === 'natural' ? identity.fullName : identity.razonSocial}
-          onContinue={() =>
+          onContinue={() => {
+            if (activatedSession) {
+              signIn(activatedSession);
+            }
             router.replace({
               pathname: '/home',
               params: { solicitud: registration?.registrationId ?? '' },
-            })
-          }
+            });
+          }}
         />
       </AuthShell>
     );

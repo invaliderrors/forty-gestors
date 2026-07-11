@@ -18,6 +18,8 @@ type AuthShellProps = {
   centerContent?: boolean;
   /** Espacio extra al final del scroll (ej: para la tab bar flotante). */
   extraBottomPadding?: number;
+  /** Color del sheet (default: lienzo azulado; el dashboard usa blanco). */
+  sheetColor?: string;
   children: ReactNode;
 };
 
@@ -60,6 +62,7 @@ export function AuthShell({
   onBack,
   centerContent = false,
   extraBottomPadding = 0,
+  sheetColor,
   children,
 }: AuthShellProps) {
   const insets = useSafeAreaInsets();
@@ -86,7 +89,7 @@ export function AuthShell({
       </View>
 
       <View style={styles.sheetWrapper}>
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, sheetColor ? { backgroundColor: sheetColor } : null]}>
           <SheetBlob
             id="sheetBlobGold"
             size={260}

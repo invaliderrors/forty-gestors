@@ -14,6 +14,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { ServicesProvider } from '@/providers/ServicesProvider';
+import { SessionProvider } from '@/providers/SessionProvider';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -40,13 +41,15 @@ export default function RootLayout() {
 
   return (
     <ServicesProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'fade',
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      />
+      <SessionProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'fade',
+            contentStyle: { backgroundColor: colors.background },
+          }}
+        />
+      </SessionProvider>
     </ServicesProvider>
   );
 }

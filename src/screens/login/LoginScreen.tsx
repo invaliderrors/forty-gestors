@@ -9,13 +9,16 @@ import { ClayCard } from '@/components/shared/clay/ClayCard';
 import { ClayNotice } from '@/components/shared/clay/ClayNotice';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { FortuLogo } from '@/components/shared/FortuLogo';
+import { useSession } from '@/providers/SessionProvider';
 import { colors, fonts, fontSizes, spacing } from '@/theme';
 
 export function LoginScreen() {
   const router = useRouter();
+  const { signIn } = useSession();
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
-  const form = useLoginForm(() => {
+  const form = useLoginForm((session) => {
+    signIn(session);
     router.replace('/home');
   });
 

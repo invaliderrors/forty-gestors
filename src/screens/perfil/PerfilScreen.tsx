@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AuthShell } from '@/components/shared/AuthShell';
 import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayCard } from '@/components/shared/clay/ClayCard';
+import { useSession } from '@/providers/SessionProvider';
 import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
 
 const TAB_BAR_SPACE = 84;
@@ -12,6 +13,7 @@ const TAB_BAR_SPACE = 84;
 /** Perfil del gestor (placeholder + cierre de sesión). */
 export function PerfilScreen() {
   const router = useRouter();
+  const { signOut } = useSession();
 
   return (
     <AuthShell
@@ -33,7 +35,10 @@ export function PerfilScreen() {
       <ClayButton
         label="Cerrar sesión"
         variant="secondary"
-        onPress={() => router.replace('/login')}
+        onPress={() => {
+          signOut();
+          router.replace('/login');
+        }}
       />
     </AuthShell>
   );

@@ -1,3 +1,4 @@
+import type { Session } from '@/domain/auth/types';
 import type { RegistrationDraft, RegistrationResult } from '@/domain/registration/types';
 
 /**
@@ -10,7 +11,7 @@ import type { RegistrationDraft, RegistrationResult } from '@/domain/registratio
  */
 export type RegistrationRepository = {
   submit(draft: RegistrationDraft): Promise<RegistrationResult>;
-  /** Lanza InvalidOtpError si el código no coincide. */
-  verifyCode(registrationId: string, code: string): Promise<void>;
+  /** Activa la cuenta y devuelve la sesión. Lanza InvalidOtpError si el código no coincide. */
+  verifyCode(registrationId: string, code: string): Promise<Session>;
   resendCode(registrationId: string): Promise<void>;
 };

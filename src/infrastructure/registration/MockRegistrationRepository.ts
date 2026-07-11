@@ -1,4 +1,5 @@
 import { EmailAlreadyTakenError, InvalidOtpError } from '@/domain/auth/errors';
+import type { Session } from '@/domain/auth/types';
 import type { RegistrationRepository } from '@/domain/registration/RegistrationRepository';
 import type { RegistrationDraft, RegistrationResult } from '@/domain/registration/types';
 import {
@@ -34,7 +35,7 @@ export class MockRegistrationRepository implements RegistrationRepository {
     return { registrationId, email, status: 'verification_sent' };
   }
 
-  async verifyCode(registrationId: string, code: string): Promise<void> {
+  async verifyCode(registrationId: string, code: string): Promise<Session> {
     await simulateLatency(700);
 
     const pending = mockDb.pendingRegistrations.get(registrationId);
@@ -48,14 +49,17 @@ export class MockRegistrationRepository implements RegistrationRepository {
       draft.identity.personaType === 'natural'
         ? draft.identity.fullName.trim()
         : draft.identity.razonSocial.trim();
+    const userId = createMockId('usr');
 
     mockDb.users.set(email, {
-      userId: createMockId('usr'),
+      userId,
       email,
       password: draft.password,
       displayName,
     });
     mockDb.pendingRegistrations.delete(registrationId);
+
+    return { userId, email, displayName };
   }
 
   async resendCode(registrationId: string): Promise<void> {

@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ConfettiRain } from '@/components/home/ConfettiRain';
-import { ClayCard } from '@/components/shared/clay/ClayCard';
 import { AVAILABLE_INSURERS, type RifaProjection as Projection } from '@/domain/rifa/normative';
 import { formatCop } from '@/domain/shared/money';
 import { clayShadow, colors, fonts, fontSizes, radii, spacing } from '@/theme';
@@ -37,7 +36,7 @@ export function RifaProjection({ projection }: RifaProjectionProps) {
     <View style={styles.container}>
       <Text style={styles.sectionLabel}>Fortu te entrega esta información</Text>
 
-      <ClayCard style={styles.numbersCard}>
+      <View style={styles.numbersCard}>
         <ProjectionRow
           icon="albums-outline"
           label="Tu emisión total es de"
@@ -61,9 +60,9 @@ export function RifaProjection({ projection }: RifaProjectionProps) {
           label="Costo aproximado de la póliza de cumplimiento"
           value={formatCop(projection.insuranceCost)}
         />
-      </ClayCard>
+      </View>
 
-      <ClayCard flat style={styles.insurersCard}>
+      <View style={styles.insurersCard}>
         <Text style={styles.insurersLabel}>Pólizas disponibles para este sorteo</Text>
         <View style={styles.insurersRow}>
           {AVAILABLE_INSURERS.map((insurer) => (
@@ -73,7 +72,7 @@ export function RifaProjection({ projection }: RifaProjectionProps) {
             </View>
           ))}
         </View>
-      </ClayCard>
+      </View>
 
       <View style={[styles.earningsCard, clayShadow.goldCta]}>
         <ConfettiRain fieldHeight={200} />

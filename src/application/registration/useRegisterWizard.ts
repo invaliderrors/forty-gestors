@@ -2,6 +2,7 @@ import { useMemo, useReducer } from 'react';
 
 import { analyzeDocument, buildAnalysisContext } from '@/application/registration/analyzeDocument';
 import { AppError } from '@/domain/auth/errors';
+import type { Session } from '@/domain/auth/types';
 import type { DocumentAnalysis, DocumentAttachment } from '@/domain/documents/analysis';
 import type { PickedFile } from '@/domain/media/types';
 import type {
@@ -59,6 +60,8 @@ type WizardState = {
   submit: SubmitState;
   registration: RegistrationResult | null;
   otp: OtpState;
+  /** Sesión devuelta al verificar el código (cuenta activada). */
+  activatedSession: Session | null;
 };
 
 type WizardAction =
@@ -77,7 +80,7 @@ type WizardAction =
   | { type: 'submit_succeeded'; result: RegistrationResult }
   | { type: 'otp_check_started' }
   | { type: 'otp_failed'; message: string }
-  | { type: 'otp_verified' };
+  | { type: 'otp_verified'; session: Session };
 
 function buildInitialState(personaType: PersonaType): WizardState {
   return {
@@ -86,6 +89,7 @@ function buildInitialState(personaType: PersonaType): WizardState {
     showErrors: false,
     registration: null,
     otp: { status: 'idle' },
+    activatedSession: null,
     identity: {
       personaType,
       docType: 'CC',
@@ -177,7 +181,7 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
     case 'otp_failed':
       return { ...state, otp: { status: 'error', message: action.message } };
     case 'otp_verified':
-      return { ...state, otp: { status: 'idle' }, phase: 'welcome' };
+      return { ...state, otp: { status: 'idle' }, phase: 'welcome', activatedSession: action.session };
     default:
       return state;
   }
@@ -350,8 +354,8 @@ export function useRegisterWizard(personaType: PersonaType) {
     }
     dispatch({ type: 'otp_check_started' });
     try {
-      await registration.verifyCode(state.registration.registrationId, code);
-      dispatch({ type: 'otp_verified' });
+      const session = await registration.verifyCode(state.registration.registrationId, code);
+      dispatch({ type: 'otp_verified', session });
     } catch (error) {
       dispatch({
         type: 'otp_failed',
