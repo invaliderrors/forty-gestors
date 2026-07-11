@@ -1,5 +1,6 @@
 import type { Rifa } from '@/domain/rifa/types';
 import type { RegistrationDraft } from '@/domain/registration/types';
+import type { Seller } from '@/domain/vendedores/types';
 
 type MockUser = {
   userId: string;
@@ -39,7 +40,17 @@ export const mockDb = {
   registrationCounter: 0,
   rifas: [] as Rifa[],
   rifaCounter: 0,
+  sellers: [] as Seller[],
+  sellerCounter: 0,
 };
+
+/** Número institucional del vendedor: VD-AAAAMM-consecutivo. */
+export function createSellerNumber(): string {
+  mockDb.sellerCounter += 1;
+  const now = new Date();
+  const period = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return `VD-${period}-${String(mockDb.sellerCounter).padStart(3, '0')}`;
+}
 
 /** Número institucional de la rifa: RF-AAAAMM-consecutivo (ej: RF-202607-001). */
 export function createRifaNumber(): string {

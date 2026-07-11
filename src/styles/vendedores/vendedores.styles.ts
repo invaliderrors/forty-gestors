@@ -1,0 +1,82 @@
+import { StyleSheet } from 'react-native';
+
+import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
+
+export const vendedoresStyles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+  content: {
+    paddingHorizontal: spacing.xxl,
+    gap: spacing.xl,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceBorder,
+    borderBottomWidth: 4,
+    borderBottomColor: colors.surfaceDepth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButtonPressed: {
+    opacity: 0.65,
+  },
+  headerText: {
+    flex: 1,
+  },
+  title: {
+    fontFamily: fonts.display,
+    fontSize: fontSizes.title,
+    color: colors.textPrimary,
+  },
+  subtitle: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.caption,
+    color: colors.textSecondary,
+    marginTop: 1,
+  },
+  loading: {
+    paddingVertical: spacing.xxxl,
+    alignItems: 'center',
+  },
+  list: {
+    gap: spacing.lg,
+  },
+  empty: {
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.xl,
+  },
+  emptyBubble: {
+    width: 72,
+    height: 72,
+    borderRadius: radii.xl,
+    backgroundColor: colors.goldSoftBg,
+    borderBottomWidth: 4,
+    borderBottomColor: colors.ctaFace,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTitle: {
+    fontFamily: fonts.displaySoft,
+    fontSize: fontSizes.title,
+    color: colors.textPrimary,
+  },
+  emptyMessage: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.body,
+    lineHeight: 21,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+});

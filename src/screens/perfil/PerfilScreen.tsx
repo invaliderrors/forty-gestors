@@ -72,7 +72,7 @@ export function PerfilScreen() {
           <ProfileQuickActions
             actions={[
               { icon: 'add', label: 'Nueva rifa', onPress: () => router.navigate('/rifas') },
-              { icon: 'people', label: 'Vendedores', onPress: comingSoon('La gestión de vendedores') },
+              { icon: 'people', label: 'Vendedores', onPress: () => router.push('/vendedores') },
               { icon: 'bar-chart', label: 'Reportes', onPress: comingSoon('Los reportes del negocio') },
             ]}
           />
@@ -131,7 +131,7 @@ export function PerfilScreen() {
               icon: 'people-outline',
               label: 'Vendedores',
               sub: 'Tu equipo y sus permisos',
-              onPress: comingSoon('La gestión de vendedores'),
+              onPress: () => router.push('/vendedores'),
             },
             {
               icon: 'document-text-outline',
