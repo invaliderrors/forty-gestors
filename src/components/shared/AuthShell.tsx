@@ -16,6 +16,8 @@ type AuthShellProps = {
   onBack?: () => void;
   /** Centra el contenido verticalmente dentro del sheet (vistas cortas). */
   centerContent?: boolean;
+  /** Espacio extra al final del scroll (ej: para la tab bar flotante). */
+  extraBottomPadding?: number;
   children: ReactNode;
 };
 
@@ -57,6 +59,7 @@ export function AuthShell({
   heroAccessory,
   onBack,
   centerContent = false,
+  extraBottomPadding = 0,
   children,
 }: AuthShellProps) {
   const insets = useSafeAreaInsets();
@@ -100,7 +103,7 @@ export function AuthShell({
             contentContainerStyle={[
               styles.sheetContent,
               centerContent && styles.sheetContentCentered,
-              { paddingBottom: insets.bottom + spacing.xxxl },
+              { paddingBottom: insets.bottom + spacing.xxxl + extraBottomPadding },
             ]}
             showsVerticalScrollIndicator={false}
           >
