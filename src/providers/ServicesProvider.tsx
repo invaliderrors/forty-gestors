@@ -4,16 +4,19 @@ import type { AuthRepository } from '@/domain/auth/AuthRepository';
 import type { DocumentScanner } from '@/domain/documents/DocumentScanner';
 import type { MediaPicker } from '@/domain/media/MediaPicker';
 import type { RegistrationRepository } from '@/domain/registration/RegistrationRepository';
+import type { RifaRepository } from '@/domain/rifa/RifaRepository';
 import { MockAuthRepository } from '@/infrastructure/auth/MockAuthRepository';
 import { MlKitDocumentScanner } from '@/infrastructure/documents/MlKitDocumentScanner';
 import { ExpoMediaPicker } from '@/infrastructure/media/ExpoMediaPicker';
 import { MockRegistrationRepository } from '@/infrastructure/registration/MockRegistrationRepository';
+import { MockRifaRepository } from '@/infrastructure/rifa/MockRifaRepository';
 
 export type Services = {
   auth: AuthRepository;
   registration: RegistrationRepository;
   mediaPicker: MediaPicker;
   documentScanner: DocumentScanner;
+  rifas: RifaRepository;
 };
 
 const ServicesContext = createContext<Services | null>(null);
@@ -30,6 +33,7 @@ export function ServicesProvider({ children }: PropsWithChildren) {
       registration: new MockRegistrationRepository(),
       mediaPicker: new ExpoMediaPicker(),
       documentScanner: new MlKitDocumentScanner(),
+      rifas: new MockRifaRepository(),
     }),
     [],
   );

@@ -1,3 +1,4 @@
+import type { Rifa } from '@/domain/rifa/types';
 import type { RegistrationDraft } from '@/domain/registration/types';
 
 type MockUser = {
@@ -36,7 +37,17 @@ export const mockDb = {
   ]),
   pendingRegistrations: new Map<string, PendingRegistration>(),
   registrationCounter: 0,
+  rifas: [] as Rifa[],
+  rifaCounter: 0,
 };
+
+/** Número institucional de la rifa: RF-AAAAMM-consecutivo (ej: RF-202607-001). */
+export function createRifaNumber(): string {
+  mockDb.rifaCounter += 1;
+  const now = new Date();
+  const period = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return `RF-${period}-${String(mockDb.rifaCounter).padStart(3, '0')}`;
+}
 
 /**
  * Número de solicitud en formato institucional: AAAAMM + consecutivo.
