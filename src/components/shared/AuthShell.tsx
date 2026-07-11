@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
+import { KeyboardAwareScrollView } from '@/components/shared/KeyboardAwareScrollView';
 import { ScreenBackground } from '@/components/shared/ScreenBackground';
 import { clayShadow, colors, fonts, fontSizes, radii, spacing } from '@/theme';
 
@@ -107,17 +107,16 @@ export function AuthShell({
             color={colors.blobCyan}
             style={styles.blobCyanPosition}
           />
-          <ScrollView
+          <KeyboardAwareScrollView
             contentContainerStyle={[
               styles.sheetContent,
               centerContent && styles.sheetContentCentered,
               { paddingBottom: insets.bottom + spacing.xxxl },
             ]}
-            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             {children}
-          </ScrollView>
+          </KeyboardAwareScrollView>
         </View>
       </KeyboardAvoidingView>
     </View>
