@@ -3,8 +3,10 @@ import type { NaturalDocType } from '@/domain/registration/types';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 /** Celular colombiano: 10 dígitos iniciando en 3. */
 const CO_MOBILE_RE = /^3\d{9}$/;
-const CC_RE = /^\d{6,10}$/;
-const CE_RE = /^\d{5,12}$/;
+/** Documentos numéricos (CC, CE, PEP, PPT). */
+const NUMERIC_DOC_RE = /^\d{5,15}$/;
+/** Pasaporte: alfanumérico, como en el contrato de fortu-app. */
+const PASSPORT_RE = /^[A-Za-z0-9]{5,20}$/;
 const NIT_RE = /^\d{9,10}$/;
 
 export function isValidEmail(value: string): boolean {
@@ -16,7 +18,13 @@ export function isValidColombianMobile(value: string): boolean {
 }
 
 export function isValidNaturalDoc(docType: NaturalDocType, value: string): boolean {
-  return docType === 'CC' ? CC_RE.test(value.trim()) : CE_RE.test(value.trim());
+  const trimmed = value.trim();
+  return docType === 'PA' ? PASSPORT_RE.test(trimmed) : NUMERIC_DOC_RE.test(trimmed);
+}
+
+/** El pasaporte admite letras; el resto de documentos son solo dígitos. */
+export function isAlphanumericDoc(docType: NaturalDocType): boolean {
+  return docType === 'PA';
 }
 
 export function isValidFullName(value: string): boolean {

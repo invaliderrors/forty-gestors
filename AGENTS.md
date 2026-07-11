@@ -47,7 +47,7 @@ Reglas:
 - Feedback inline con `ClayNotice`; selección en sheets con `ClayPickerSheet`.
 - `react-native-safe-area-context` se queda: expo-router lo requiere y los insets evitan el notch. No agregar la etiqueta "GESTOR" bajo el wordmark.
 - `@lottiefiles/dotlottie-react` existe solo para que el target web bundlee Lottie.
-- Si los typed routes se desincronizan tras mover rutas: borrar `.expo/` y arrancar `expo start` unos segundos (los regenera el dev server, no `expo export`).
+- `experiments.typedRoutes` está **desactivado** a propósito: en esta versión el generador emite rutas incorrectas (`/register/index` en vez de `/register`) y rompe el typecheck sin motivo. No reactivarlo sin verificar que el bug esté resuelto.
 
 ## Dominio (registro KYC — Decreto 1486 de 2024)
 

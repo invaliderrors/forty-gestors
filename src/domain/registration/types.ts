@@ -2,7 +2,23 @@ import type { PickedFile } from '@/domain/media/types';
 
 export type PersonaType = 'natural' | 'juridica';
 
-export type NaturalDocType = 'CC' | 'CE';
+/**
+ * Documentos de identidad admitidos para persona natural.
+ * CC/CE son numéricos; el pasaporte es alfanumérico (misma regla que fortu-app).
+ */
+export type NaturalDocType = 'CC' | 'CE' | 'PA' | 'PEP' | 'PPT';
+
+export const NATURAL_DOC_TYPES: readonly { value: NaturalDocType; label: string }[] = [
+  { value: 'CC', label: 'Cédula de ciudadanía' },
+  { value: 'CE', label: 'Cédula de extranjería' },
+  { value: 'PA', label: 'Pasaporte' },
+  { value: 'PEP', label: 'Permiso Especial de Permanencia (PEP)' },
+  { value: 'PPT', label: 'Permiso por Protección Temporal (PPT)' },
+];
+
+export function naturalDocTypeLabel(docType: NaturalDocType): string {
+  return NATURAL_DOC_TYPES.find((option) => option.value === docType)?.label ?? '';
+}
 
 /** Identificación según el tipo de persona (Decreto 1486 de 2024 / registro Coljuegos). */
 export type IdentityData = {

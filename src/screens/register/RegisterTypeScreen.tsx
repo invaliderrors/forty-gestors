@@ -14,6 +14,7 @@ export function RegisterTypeScreen() {
       title="Crear cuenta"
       subtitle="Cuéntanos cómo operas tu negocio para pedirte solo los documentos que te corresponden."
       onBack={() => router.back()}
+      centerContent
     >
       <PersonaTypeCard
         title="Persona natural"

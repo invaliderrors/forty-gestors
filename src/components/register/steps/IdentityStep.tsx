@@ -1,48 +1,56 @@
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { RegisterWizard } from '@/application/registration/useRegisterWizard';
+import { ClayPickerSheet } from '@/components/shared/clay/ClayPickerSheet';
+import { ClaySelectField } from '@/components/shared/clay/ClaySelectField';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
-import { computeNitCheckDigit } from '@/domain/registration/validators';
+import type { NaturalDocType } from '@/domain/registration/types';
+import { NATURAL_DOC_TYPES, naturalDocTypeLabel } from '@/domain/registration/types';
+import { computeNitCheckDigit, isAlphanumericDoc } from '@/domain/registration/validators';
 import { colors, fonts, fontSizes, spacing } from '@/theme';
+
+const docTypeOptions = NATURAL_DOC_TYPES.map((option) => ({
+  value: option.value,
+  label: option.label,
+}));
 
 type IdentityStepProps = {
   wizard: RegisterWizard;
 };
 
-/** Paso 1: identificación (KYC básico del Decreto 1486). El tipo de persona ya viene elegido. */
+/** Paso 1: identificación (KYC básico). El tipo de persona ya viene elegido. */
 export function IdentityStep({ wizard }: IdentityStepProps) {
   const { identity } = wizard.state;
   const errors = wizard.visibleErrors;
-  const isNatural = identity.personaType === 'natural';
+  const [isDocTypeSheetOpen, setIsDocTypeSheetOpen] = useState(false);
 
-  const nitBase = identity.nit.split('-')[0];
-  const suggestedDv = !identity.nit.includes('-') && nitBase.length >= 9
-    ? computeNitCheckDigit(nitBase)
-    : null;
+  if (identity.personaType === 'natural') {
+    const allowsLetters = isAlphanumericDoc(identity.docType);
 
-  if (isNatural) {
     return (
       <View style={styles.container}>
         <Text style={styles.sectionLabel}>Tus datos</Text>
-        <View style={styles.docTypeRow}>
-          <DocTypeChoice
-            label="Cédula (CC)"
-            selected={identity.docType === 'CC'}
-            onPress={() => wizard.setIdentity('docType', 'CC')}
-          />
-          <DocTypeChoice
-            label="C. Extranjería"
-            selected={identity.docType === 'CE'}
-            onPress={() => wizard.setIdentity('docType', 'CE')}
-          />
-        </View>
+        <ClaySelectField
+          label="Tipo de documento"
+          value={naturalDocTypeLabel(identity.docType)}
+          placeholder="Selecciona el tipo de documento"
+          icon="documents-outline"
+          onPress={() => setIsDocTypeSheetOpen(true)}
+        />
         <ClayTextInput
           label="Número de documento"
           value={identity.docNumber}
-          onChangeText={(value) => wizard.setIdentity('docNumber', value.replace(/[^\d]/g, ''))}
-          placeholder="Ej: 1023456789"
-          keyboardType="number-pad"
-          maxLength={12}
+          onChangeText={(value) =>
+            wizard.setIdentity(
+              'docNumber',
+              allowsLetters ? value.replace(/[^A-Za-z0-9]/g, '') : value.replace(/[^\d]/g, ''),
+            )
+          }
+          placeholder={allowsLetters ? 'Ej: AB123456' : 'Ej: 1023456789'}
+          keyboardType={allowsLetters ? 'default' : 'number-pad'}
+          autoCapitalize={allowsLetters ? 'characters' : 'none'}
+          maxLength={allowsLetters ? 20 : 15}
           icon="id-card-outline"
           error={errors.docNumber}
         />
@@ -50,15 +58,33 @@ export function IdentityStep({ wizard }: IdentityStepProps) {
           label="Nombre completo"
           value={identity.fullName}
           onChangeText={(value) => wizard.setIdentity('fullName', value)}
-          placeholder="Como aparece en tu cédula"
+          placeholder="Como aparece en tu documento"
           autoCapitalize="words"
           autoComplete="name"
           icon="person-outline"
           error={errors.fullName}
         />
+
+        <ClayPickerSheet
+          visible={isDocTypeSheetOpen}
+          title="Tipo de documento"
+          options={docTypeOptions}
+          selectedValue={identity.docType}
+          onSelect={(value: NaturalDocType) => {
+            wizard.setIdentity('docType', value);
+            // El formato cambia entre numérico y alfanumérico: limpiamos para no
+            // dejar un número inválido para el nuevo tipo.
+            wizard.setIdentity('docNumber', '');
+          }}
+          onClose={() => setIsDocTypeSheetOpen(false)}
+        />
       </View>
     );
   }
+
+  const nitBase = identity.nit.split('-')[0];
+  const suggestedDv =
+    !identity.nit.includes('-') && nitBase.length >= 9 ? computeNitCheckDigit(nitBase) : null;
 
   return (
     <View style={styles.container}>
@@ -72,9 +98,7 @@ export function IdentityStep({ wizard }: IdentityStepProps) {
         maxLength={12}
         icon="business-outline"
         error={errors.nit}
-        helper={
-          suggestedDv !== null ? `Dígito de verificación sugerido: ${suggestedDv}` : undefined
-        }
+        helper={suggestedDv !== null ? `Dígito de verificación sugerido: ${suggestedDv}` : undefined}
       />
       <ClayTextInput
         label="Razón social"
@@ -103,32 +127,11 @@ export function IdentityStep({ wizard }: IdentityStepProps) {
         }
         placeholder="Ej: 1023456789"
         keyboardType="number-pad"
-        maxLength={12}
+        maxLength={15}
         icon="id-card-outline"
         error={errors.repLegalDocNumber}
       />
     </View>
-  );
-}
-
-function DocTypeChoice({
-  label,
-  selected,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Text
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}
-      style={[styles.compactChoice, selected && styles.compactChoiceSelected]}
-    >
-      {label}
-    </Text>
   );
 }
 
@@ -141,27 +144,5 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.subtitle,
     color: colors.textPrimary,
     marginTop: spacing.sm,
-  },
-  docTypeRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  compactChoice: {
-    flex: 1,
-    textAlign: 'center',
-    paddingVertical: 12,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: colors.surfaceBorder,
-    backgroundColor: colors.surface,
-    fontFamily: fonts.semibold,
-    fontSize: fontSizes.caption,
-    color: colors.textSecondary,
-    overflow: 'hidden',
-  },
-  compactChoiceSelected: {
-    borderColor: colors.ctaFace,
-    backgroundColor: colors.goldSoftBg,
-    color: colors.textPrimary,
   },
 });

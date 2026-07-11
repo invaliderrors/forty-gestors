@@ -22,6 +22,8 @@ type AuthShellProps = {
   /** Contenido extra del hero (logo, progreso del wizard...). */
   heroAccessory?: ReactNode;
   onBack?: () => void;
+  /** Centra el contenido verticalmente dentro del sheet (vistas cortas). */
+  centerContent?: boolean;
   children: ReactNode;
 };
 
@@ -57,7 +59,14 @@ function SheetBlob({
  * (gradiente SVG) y "sheet" claro claymórfico que sube por encima,
  * donde vive el contenido.
  */
-export function AuthShell({ title, subtitle, heroAccessory, onBack, children }: AuthShellProps) {
+export function AuthShell({
+  title,
+  subtitle,
+  heroAccessory,
+  onBack,
+  centerContent = false,
+  children,
+}: AuthShellProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -101,6 +110,7 @@ export function AuthShell({ title, subtitle, heroAccessory, onBack, children }: 
           <ScrollView
             contentContainerStyle={[
               styles.sheetContent,
+              centerContent && styles.sheetContentCentered,
               { paddingBottom: insets.bottom + spacing.xxxl },
             ]}
             keyboardShouldPersistTaps="handled"
@@ -163,6 +173,10 @@ const styles = StyleSheet.create({
   sheetContent: {
     padding: spacing.xxl,
     gap: spacing.xl,
+  },
+  sheetContentCentered: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   blob: {
     position: 'absolute',

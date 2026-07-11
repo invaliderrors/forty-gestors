@@ -136,9 +136,9 @@ function validateIdentity(identity: IdentityData): WizardErrors {
   if (identity.personaType === 'natural') {
     if (!isValidNaturalDoc(identity.docType, identity.docNumber)) {
       errors.docNumber =
-        identity.docType === 'CC'
-          ? 'Escribe una cédula válida (6 a 10 dígitos).'
-          : 'Escribe una cédula de extranjería válida.';
+        identity.docType === 'PA'
+          ? 'Escribe un número de pasaporte válido (5 a 20 caracteres).'
+          : 'Escribe un número de documento válido (5 a 15 dígitos).';
     }
     if (!isValidFullName(identity.fullName)) {
       errors.fullName = 'Escribe tu nombre completo.';
