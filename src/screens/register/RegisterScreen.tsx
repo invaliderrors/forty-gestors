@@ -85,7 +85,12 @@ export function RegisterScreen({ personaType }: RegisterScreenProps) {
       <AuthShell centerContent>
         <WelcomeView
           displayName={personaType === 'natural' ? identity.fullName : identity.razonSocial}
-          onContinue={() => router.replace('/home')}
+          onContinue={() =>
+            router.replace({
+              pathname: '/home',
+              params: { solicitud: registration?.registrationId ?? '' },
+            })
+          }
         />
       </AuthShell>
     );

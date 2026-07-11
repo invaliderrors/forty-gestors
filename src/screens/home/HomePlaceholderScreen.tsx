@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { SolicitudConfirmationModal } from '@/components/home/SolicitudConfirmationModal';
 import { AuthShell } from '@/components/shared/AuthShell';
 import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayCard } from '@/components/shared/clay/ClayCard';
@@ -10,9 +12,15 @@ import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
 /**
  * Placeholder del panel del gestor. Se reemplaza cuando construyamos
  * la fase de operación (dashboard, rifas, vendedores, wallet).
+ * Si se llega desde el registro, muestra primero la confirmación de la
+ * solicitud con su número institucional.
  */
 export function HomePlaceholderScreen() {
   const router = useRouter();
+  const { solicitud } = useLocalSearchParams<{ solicitud?: string }>();
+  const [isSolicitudConfirmed, setIsSolicitudConfirmed] = useState(false);
+
+  const solicitudId = typeof solicitud === 'string' && solicitud.length > 0 ? solicitud : null;
 
   return (
     <AuthShell
@@ -33,6 +41,12 @@ export function HomePlaceholderScreen() {
         label="Cerrar sesión"
         variant="secondary"
         onPress={() => router.replace('/login')}
+      />
+
+      <SolicitudConfirmationModal
+        visible={solicitudId !== null && !isSolicitudConfirmed}
+        registrationId={solicitudId ?? ''}
+        onContinue={() => setIsSolicitudConfirmed(true)}
       />
     </AuthShell>
   );

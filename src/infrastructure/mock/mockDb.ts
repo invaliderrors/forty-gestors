@@ -35,7 +35,19 @@ export const mockDb = {
     ],
   ]),
   pendingRegistrations: new Map<string, PendingRegistration>(),
+  registrationCounter: 0,
 };
+
+/**
+ * Número de solicitud en formato institucional: AAAAMM + consecutivo.
+ * Ej: 202607-0001. El backend real asignará el consecutivo oficial.
+ */
+export function createRegistrationNumber(): string {
+  mockDb.registrationCounter += 1;
+  const now = new Date();
+  const period = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return `${period}-${String(mockDb.registrationCounter).padStart(4, '0')}`;
+}
 
 export function createMockId(prefix: string): string {
   const random = Math.random().toString(36).slice(2, 10);

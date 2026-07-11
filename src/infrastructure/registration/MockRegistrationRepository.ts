@@ -1,7 +1,13 @@
 import { EmailAlreadyTakenError, InvalidOtpError } from '@/domain/auth/errors';
 import type { RegistrationRepository } from '@/domain/registration/RegistrationRepository';
 import type { RegistrationDraft, RegistrationResult } from '@/domain/registration/types';
-import { createMockId, DEMO_OTP_CODE, mockDb, simulateLatency } from '@/infrastructure/mock/mockDb';
+import {
+  createMockId,
+  createRegistrationNumber,
+  DEMO_OTP_CODE,
+  mockDb,
+  simulateLatency,
+} from '@/infrastructure/mock/mockDb';
 
 /**
  * Implementación mock del registro con verificación por código:
@@ -17,7 +23,7 @@ export class MockRegistrationRepository implements RegistrationRepository {
       throw new EmailAlreadyTakenError();
     }
 
-    const registrationId = createMockId('reg');
+    const registrationId = createRegistrationNumber();
     mockDb.pendingRegistrations.set(registrationId, {
       registrationId,
       draft,
