@@ -26,7 +26,11 @@ export function DocumentUploadCard({
   onPick,
   onRemove,
 }: DocumentUploadCardProps) {
-  const acceptsLabel = slot.accepts.includes('pdf') ? 'Foto o PDF' : 'Foto';
+  const acceptsLabel = !slot.accepts.includes('image')
+    ? 'Solo PDF'
+    : slot.accepts.includes('pdf')
+      ? 'Foto o PDF'
+      : 'Foto';
   const analysis = attachment?.analysis ?? null;
   const isAnalyzing = analysis?.status === 'analyzing';
 

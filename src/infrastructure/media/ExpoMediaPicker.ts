@@ -3,11 +3,12 @@ import * as ImagePicker from 'expo-image-picker';
 
 import {
   MediaPermissionError,
+  UnsupportedFileTypeError,
   type MediaPermissionKind,
   type MediaPermissionStatus,
   type MediaPicker,
 } from '@/domain/media/MediaPicker';
-import type { PickedFile } from '@/domain/media/types';
+import type { PickedFile, PickedFileKind } from '@/domain/media/types';
 
 function inferName(uri: string, fallback: string): string {
   const segment = uri.split('/').pop();
@@ -78,9 +79,17 @@ export class ExpoMediaPicker implements MediaPicker {
     return mapImageAsset(result.assets[0]);
   }
 
-  async pickDocumentFile(): Promise<PickedFile | null> {
+  async pickDocumentFile(accepts: readonly PickedFileKind[]): Promise<PickedFile | null> {
+    const mimeTypes: string[] = [];
+    if (accepts.includes('pdf')) {
+      mimeTypes.push('application/pdf');
+    }
+    if (accepts.includes('image')) {
+      mimeTypes.push('image/*');
+    }
+
     const result = await DocumentPicker.getDocumentAsync({
-      type: ['application/pdf', 'image/*'],
+      type: mimeTypes,
       copyToCacheDirectory: true,
       multiple: false,
     });
@@ -90,11 +99,23 @@ export class ExpoMediaPicker implements MediaPicker {
     const asset = result.assets[0];
     const isPdf =
       asset.mimeType === 'application/pdf' || asset.name.toLowerCase().endsWith('.pdf');
+    const kind: PickedFileKind = isPdf ? 'pdf' : 'image';
+
+    // El filtro por MIME del selector no es garantía en todos los proveedores
+    // de archivos de Android: se verifica de nuevo acá.
+    if (!accepts.includes(kind)) {
+      throw new UnsupportedFileTypeError(
+        accepts.includes('pdf') && !accepts.includes('image')
+          ? 'Este documento solo se acepta en PDF. Descárgalo de la DIAN y súbelo sin convertirlo a imagen.'
+          : 'El tipo de archivo no es válido para este documento.',
+      );
+    }
+
     return {
       uri: asset.uri,
       name: asset.name,
       mimeType: asset.mimeType ?? (isPdf ? 'application/pdf' : 'image/jpeg'),
-      kind: isPdf ? 'pdf' : 'image',
+      kind,
       sizeBytes: asset.size ?? undefined,
     };
   }

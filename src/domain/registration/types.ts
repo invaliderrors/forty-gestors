@@ -96,8 +96,8 @@ const NATURAL_SLOTS: readonly DocumentSlot[] = [
   {
     kind: 'rut',
     title: 'RUT actualizado',
-    hint: 'PDF descargado de la DIAN o foto legible del documento.',
-    accepts: ['pdf', 'image'],
+    hint: 'Solo PDF, tal como lo descargas de la DIAN. No aceptamos fotos.',
+    accepts: ['pdf'],
     required: true,
   },
 ];
@@ -106,8 +106,8 @@ const JURIDICA_SLOTS: readonly DocumentSlot[] = [
   {
     kind: 'rut_empresa',
     title: 'RUT de la empresa',
-    hint: 'PDF actualizado de la DIAN a nombre de la sociedad.',
-    accepts: ['pdf', 'image'],
+    hint: 'Solo PDF de la DIAN, a nombre de la sociedad. No aceptamos fotos.',
+    accepts: ['pdf'],
     required: true,
   },
   {

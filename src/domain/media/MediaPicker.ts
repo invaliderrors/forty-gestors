@@ -1,5 +1,11 @@
 import { AppError } from '@/domain/auth/errors';
-import type { PickedFile } from '@/domain/media/types';
+import type { PickedFile, PickedFileKind } from '@/domain/media/types';
+
+export class UnsupportedFileTypeError extends AppError {
+  constructor(message: string) {
+    super('MEDIA/UNSUPPORTED_TYPE', message);
+  }
+}
 
 export class MediaPermissionError extends AppError {
   constructor(permission: 'camera' | 'gallery') {
@@ -33,6 +39,10 @@ export type MediaPicker = {
   requestPermission(kind: MediaPermissionKind): Promise<MediaPermissionStatus>;
   captureWithCamera(): Promise<PickedFile | null>;
   pickFromGallery(): Promise<PickedFile | null>;
-  /** El selector de archivos del sistema no requiere permiso. */
-  pickDocumentFile(): Promise<PickedFile | null>;
+  /**
+   * El selector de archivos del sistema no requiere permiso.
+   * @param accepts Tipos admitidos por el slot; lanza UnsupportedFileTypeError
+   *   si el archivo elegido no es uno de ellos.
+   */
+  pickDocumentFile(accepts: readonly PickedFileKind[]): Promise<PickedFile | null>;
 };
