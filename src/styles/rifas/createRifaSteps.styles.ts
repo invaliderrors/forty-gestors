@@ -38,6 +38,20 @@ export const createRifaStepsStyles = StyleSheet.create({
     borderColor: colors.ctaFace,
     backgroundColor: colors.goldSoftBg,
   },
+  categoryIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceSunken,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  categoryIconSelected: {
+    backgroundColor: colors.ctaFace,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.ctaDepth,
+  },
   categoryLabel: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.caption,

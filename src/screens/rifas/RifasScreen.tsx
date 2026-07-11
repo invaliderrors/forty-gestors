@@ -24,8 +24,6 @@ export function RifasScreen() {
       subtitle="Tus sorteos, boletas y vendedores."
       extraBottomPadding={TAB_BAR_SPACE}
     >
-      <ClayButton label="Crear rifa" onPress={() => router.push('/crear-rifa')} />
-
       {list.status === 'loading' ? (
         <View style={styles.loading}>
           <LoadingDots color={colors.textMuted} />
@@ -56,6 +54,8 @@ export function RifasScreen() {
           ))}
         </View>
       ) : null}
+
+      <ClayButton label="Crear rifa" onPress={() => router.push('/crear-rifa')} />
     </AuthShell>
   );
 }

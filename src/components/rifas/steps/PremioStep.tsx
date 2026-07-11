@@ -1,10 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
 import type { CreateRifaWizard } from '@/application/rifa/useCreateRifaWizard';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
-import { PRIZE_CATEGORIES } from '@/domain/rifa/types';
+import { PRIZE_CATEGORIES, type PrizeCategory } from '@/domain/rifa/types';
 import { formatCop, formatThousands } from '@/domain/shared/money';
 import { createRifaStepsStyles as styles } from '@/styles/rifas/createRifaSteps.styles';
+import { colors } from '@/theme';
+
+const CATEGORY_ICONS: Record<PrizeCategory, keyof typeof Ionicons.glyphMap> = {
+  vehiculo: 'car-sport-outline',
+  inmueble: 'home-outline',
+  otro: 'gift-outline',
+};
 
 type PremioStepProps = {
   wizard: CreateRifaWizard;
@@ -30,6 +38,13 @@ export function PremioStep({ wizard }: PremioStepProps) {
               onPress={() => wizard.setCategory(category.value)}
               style={[styles.categoryChip, isSelected && styles.categoryChipSelected]}
             >
+              <View style={[styles.categoryIcon, isSelected && styles.categoryIconSelected]}>
+                <Ionicons
+                  name={CATEGORY_ICONS[category.value]}
+                  size={20}
+                  color={isSelected ? colors.textOnGold : colors.textSecondary}
+                />
+              </View>
               <Text style={[styles.categoryLabel, isSelected && styles.categoryLabelSelected]}>
                 {category.label}
               </Text>

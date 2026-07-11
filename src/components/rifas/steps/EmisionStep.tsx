@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text, View } from 'react-native';
 
 import type { CreateRifaWizard } from '@/application/rifa/useCreateRifaWizard';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { maskDrawDateInput } from '@/domain/rifa/validators';
 import { formatCop, formatThousands } from '@/domain/shared/money';
+import { useDrawDatePicker } from '@/hooks/rifas/useDrawDatePicker';
 import { createRifaStepsStyles as styles } from '@/styles/rifas/createRifaSteps.styles';
 import { colors } from '@/theme';
 
@@ -16,6 +18,9 @@ type EmisionStepProps = {
 export function EmisionStep({ wizard }: EmisionStepProps) {
   const { emision } = wizard.state;
   const errors = wizard.visibleErrors;
+  const datePicker = useDrawDatePicker(emision.drawDateRaw, (display) =>
+    wizard.setEmision('drawDateRaw', display),
+  );
 
   return (
     <View style={styles.container}>
@@ -61,7 +66,19 @@ export function EmisionStep({ wizard }: EmisionStepProps) {
         maxLength={10}
         icon="calendar-outline"
         error={errors.drawDate}
+        helper="Escríbela o elígela en el calendario."
+        trailingIcon="calendar"
+        trailingAccessibilityLabel="Abrir calendario"
+        onTrailingPress={datePicker.open}
       />
+      {datePicker.isOpen ? (
+        <DateTimePicker
+          value={datePicker.pickerValue}
+          mode="date"
+          minimumDate={datePicker.minimumDate}
+          onChange={datePicker.handleChange}
+        />
+      ) : null}
 
       {wizard.projection ? (
         <View style={styles.miniProjection}>

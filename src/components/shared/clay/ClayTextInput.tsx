@@ -18,6 +18,10 @@ type ClayTextInputProps = {
   maxLength?: number;
   icon?: keyof typeof Ionicons.glyphMap;
   autoComplete?: 'email' | 'password' | 'password-new' | 'name' | 'tel' | 'street-address' | 'off';
+  /** Icono de acción al final del campo (ej: abrir el calendario). */
+  trailingIcon?: keyof typeof Ionicons.glyphMap;
+  trailingAccessibilityLabel?: string;
+  onTrailingPress?: () => void;
 };
 
 /** Input claymórfico hundido: fondo azulado en reposo, blanco + halo cyan al foco. */
@@ -34,6 +38,9 @@ export function ClayTextInput({
   maxLength,
   icon,
   autoComplete,
+  trailingIcon,
+  trailingAccessibilityLabel,
+  onTrailingPress,
 }: ClayTextInputProps) {
   const { isFocused, isSecretVisible, handleFocus, handleBlur, toggleSecret } =
     useTextFieldState();
@@ -88,6 +95,16 @@ export function ClayTextInput({
               size={20}
               color={colors.textMuted}
             />
+          </Pressable>
+        ) : null}
+        {trailingIcon && onTrailingPress ? (
+          <Pressable
+            onPress={onTrailingPress}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={trailingAccessibilityLabel ?? label}
+          >
+            <Ionicons name={trailingIcon} size={20} color={colors.accentDeep} />
           </Pressable>
         ) : null}
       </View>
