@@ -1,7 +1,12 @@
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 
-import { MediaPermissionError, type MediaPicker } from '@/domain/media/MediaPicker';
+import {
+  MediaPermissionError,
+  type MediaPermissionKind,
+  type MediaPermissionStatus,
+  type MediaPicker,
+} from '@/domain/media/MediaPicker';
 import type { PickedFile } from '@/domain/media/types';
 
 function inferName(uri: string, fallback: string): string {
@@ -19,8 +24,31 @@ function mapImageAsset(asset: ImagePicker.ImagePickerAsset): PickedFile {
   };
 }
 
+function mapPermission(response: ImagePicker.PermissionResponse): MediaPermissionStatus {
+  if (response.granted) {
+    return 'granted';
+  }
+  return response.canAskAgain ? 'askable' : 'blocked';
+}
+
 /** Adaptador nativo de captura de documentos sobre expo-image-picker / expo-document-picker. */
 export class ExpoMediaPicker implements MediaPicker {
+  async checkPermission(kind: MediaPermissionKind): Promise<MediaPermissionStatus> {
+    const response =
+      kind === 'camera'
+        ? await ImagePicker.getCameraPermissionsAsync()
+        : await ImagePicker.getMediaLibraryPermissionsAsync();
+    return mapPermission(response);
+  }
+
+  async requestPermission(kind: MediaPermissionKind): Promise<MediaPermissionStatus> {
+    const response =
+      kind === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    return mapPermission(response);
+  }
+
   async captureWithCamera(): Promise<PickedFile | null> {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {

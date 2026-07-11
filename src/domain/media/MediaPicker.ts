@@ -6,18 +6,33 @@ export class MediaPermissionError extends AppError {
     super(
       'MEDIA/PERMISSION_DENIED',
       permission === 'camera'
-        ? 'Necesitamos permiso de cámara para capturar el documento. Habilítalo en los ajustes del teléfono.'
-        : 'Necesitamos acceso a tus fotos para adjuntar el documento. Habilítalo en los ajustes del teléfono.',
+        ? 'Necesitamos permiso de cámara para capturar el documento.'
+        : 'Necesitamos acceso a tus fotos para adjuntar el documento.',
     );
   }
 }
 
+export type MediaPermissionKind = 'camera' | 'gallery';
+
 /**
- * Puerto de captura/selección de archivos. Cada método resuelve `null`
- * si la persona cancela, y lanza MediaPermissionError si negó el permiso.
+ * - `granted`: se puede usar ya.
+ * - `askable`: aún no concedido, el sistema puede volver a preguntar.
+ * - `blocked`: negado permanentemente; solo se habilita desde los ajustes
+ *   del teléfono.
+ */
+export type MediaPermissionStatus = 'granted' | 'askable' | 'blocked';
+
+/**
+ * Puerto de captura/selección de archivos. Los métodos de captura resuelven
+ * `null` si la persona cancela, y lanzan MediaPermissionError si el permiso
+ * está negado. El chequeo/solicitud explícitos permiten mostrar nuestro
+ * modal explicativo ANTES del diálogo del sistema.
  */
 export type MediaPicker = {
+  checkPermission(kind: MediaPermissionKind): Promise<MediaPermissionStatus>;
+  requestPermission(kind: MediaPermissionKind): Promise<MediaPermissionStatus>;
   captureWithCamera(): Promise<PickedFile | null>;
   pickFromGallery(): Promise<PickedFile | null>;
+  /** El selector de archivos del sistema no requiere permiso. */
   pickDocumentFile(): Promise<PickedFile | null>;
 };
