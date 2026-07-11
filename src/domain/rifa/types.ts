@@ -29,6 +29,9 @@ export type PrizeSpec = {
   color?: string;
   /** Inmueble */
   city?: string;
+  /** Otro bien: subcategoría (Electrodoméstico, Viaje...) y tipo (Nevera...). */
+  otherCategory?: string;
+  otherKind?: string;
   /** Inmueble / otro bien */
   description?: string;
   /** Precio de mercado; el plan completo debe cumplir el tope mínimo. */
@@ -79,7 +82,12 @@ export function prizeSummary(prize: PrizeSpec): string {
   if (prize.category === 'inmueble') {
     return [prize.description, prize.city].filter(Boolean).join(' · ');
   }
-  return prize.description ?? '';
+  if (prize.otherCategory === 'Efectivo') {
+    return ['Premio en efectivo', prize.description].filter(Boolean).join(' · ');
+  }
+  const kind =
+    prize.otherKind && prize.otherKind !== 'Otro tipo' ? prize.otherKind : prize.otherCategory;
+  return [kind, prize.brand, prize.description].filter(Boolean).join(' · ');
 }
 
 /** Valor total del plan de premios. */

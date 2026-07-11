@@ -11,6 +11,7 @@ import {
   type Rifa,
   type RifaPrize,
 } from '@/domain/rifa/types';
+import { otherGoodDef, OTHER_KIND } from '@/domain/rifa/otherGoods';
 import { isValidVehicleYear, parseDrawDate } from '@/domain/rifa/validators';
 import { OTHER_BRAND } from '@/domain/rifa/vehicles';
 import { formatCop } from '@/domain/shared/money';
@@ -37,6 +38,9 @@ export type PrizeFormData = {
   year: string;
   color: string;
   city: string;
+  /** Otro bien: subcategoría (Electrodoméstico, Viaje...) y tipo (Nevera...). */
+  otherCategory: string;
+  otherKind: string;
   description: string;
   commercialValueRaw: string;
   /** Declaración juramentada: bien nuevo (de paquete) con factura original. */
@@ -86,6 +90,8 @@ function emptyPrize(): PrizeFormData {
     year: '',
     color: '',
     city: '',
+    otherCategory: '',
+    otherKind: '',
     description: '',
     commercialValueRaw: '',
     swornAccepted: false,
@@ -246,8 +252,27 @@ function validatePrize(prize: PrizeFormData, index: number): WizardErrors {
       errors[key('description')] = 'Describe el inmueble (tipo, área, ubicación...).';
     }
   }
-  if (prize.category === 'otro' && prize.description.trim().length < 10) {
-    errors[key('description')] = 'Describe el bien que vas a rifar.';
+  if (prize.category === 'otro') {
+    const def = otherGoodDef(prize.otherCategory);
+    if (!prize.otherCategory || !def) {
+      errors[key('otherCategory')] = 'Selecciona qué tipo de bien es.';
+    } else {
+      if (def.kinds && !prize.otherKind) {
+        errors[key('otherKind')] = 'Selecciona el tipo.';
+      }
+      if (def.brands) {
+        if (!prize.brand) {
+          errors[key('brand')] = 'Selecciona la marca.';
+        } else if (prize.brand === OTHER_BRAND && prize.brandOther.trim().length < 2) {
+          errors[key('brandOther')] = 'Escribe la marca.';
+        }
+      }
+      const needsDescription =
+        def.requiresDescription || (def.kinds !== undefined && prize.otherKind === OTHER_KIND);
+      if (needsDescription && prize.description.trim().length < 10) {
+        errors[key('description')] = 'Describe el bien que vas a rifar.';
+      }
+    }
   }
 
   if (prizeValue(prize) <= 0) {
@@ -301,6 +326,8 @@ function toRifaPrize(prize: PrizeFormData): RifaPrize {
     year: prize.year.trim() || undefined,
     color: prize.color.trim() || undefined,
     city: prize.city.trim() || undefined,
+    otherCategory: prize.otherCategory || undefined,
+    otherKind: prize.otherKind || undefined,
     description: prize.description.trim() || undefined,
     commercialValue: prizeValue(prize),
     swornDeclaration: prize.swornAccepted,

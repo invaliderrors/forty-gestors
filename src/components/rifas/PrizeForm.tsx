@@ -9,6 +9,7 @@ import { ClayPickerSheet, type PickerOption } from '@/components/shared/clay/Cla
 import { ClaySelectField } from '@/components/shared/clay/ClaySelectField';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { ClayPermissionModal } from '@/components/shared/ClayPermissionModal';
+import { brandsForOtherGood, otherGoodDef, OTHER_GOOD_CATEGORIES, OTHER_KIND } from '@/domain/rifa/otherGoods';
 import { PRIZE_CATEGORIES, requiresOwnershipProof, type PrizeCategory } from '@/domain/rifa/types';
 import { brandsForVehicleType, OTHER_BRAND, VEHICLE_TYPES } from '@/domain/rifa/vehicles';
 import type { MediaSource } from '@/domain/media/types';
@@ -59,6 +60,10 @@ const INVOICE_SOURCE_OPTIONS: PickerOption<MediaSource>[] = [
 ];
 
 const vehicleTypeOptions = VEHICLE_TYPES.map((type) => ({ value: type, label: type }));
+const otherCategoryOptions = OTHER_GOOD_CATEGORIES.map((def) => ({
+  value: def.label,
+  label: def.label,
+}));
 
 type PrizeFormProps = {
   index: number;
@@ -79,10 +84,17 @@ export function PrizeForm({ index, prize, wizard }: PrizeFormProps) {
     attachDocument: (_kind, file) => wizard.attachInvoice(index, file),
   });
 
-  const brandOptions = brandsForVehicleType(prize.vehicleType).map((brand) => ({
-    value: brand,
-    label: brand,
-  }));
+  const otherDef = otherGoodDef(prize.otherCategory);
+  const brandSource =
+    prize.category === 'otro'
+      ? brandsForOtherGood(prize.otherCategory)
+      : brandsForVehicleType(prize.vehicleType);
+  const brandOptions = brandSource.map((brand) => ({ value: brand, label: brand }));
+  const otherKindOptions = (otherDef?.kinds ?? []).map((kind) => ({ value: kind, label: kind }));
+  const needsOtherDescription =
+    otherDef !== null &&
+    (otherDef.requiresDescription === true ||
+      (otherDef.kinds !== undefined && prize.otherKind === OTHER_KIND));
 
   return (
     <View style={styles.container}>
@@ -232,15 +244,70 @@ export function PrizeForm({ index, prize, wizard }: PrizeFormProps) {
       ) : null}
 
       {prize.category === 'otro' ? (
-        <ClayTextInput
-          label="Descripción del bien"
-          value={prize.description}
-          onChangeText={(value) => wizard.setPrizeField(index, 'description', value)}
-          placeholder="Ej: Nevera no frost de 300 litros..."
-          autoCapitalize="sentences"
-          icon="gift-outline"
-          error={errors[key('description')]}
-        />
+        <>
+          <ClaySelectField
+            label="¿Qué tipo de bien?"
+            value={prize.otherCategory || null}
+            placeholder="Electrodoméstico, viaje, efectivo..."
+            icon="gift-outline"
+            onPress={sheets.openOtherCategory}
+            error={errors[key('otherCategory')]}
+          />
+          {otherDef?.kinds ? (
+            <ClaySelectField
+              label="Tipo"
+              value={prize.otherKind || null}
+              placeholder={`Ej: ${otherDef.kinds[0]}`}
+              icon="list-outline"
+              onPress={sheets.openOtherKind}
+              error={errors[key('otherKind')]}
+            />
+          ) : null}
+          {otherDef?.brands ? (
+            <>
+              <ClaySelectField
+                label="Marca"
+                value={prize.brand || null}
+                placeholder="Selecciona la marca"
+                icon="pricetag-outline"
+                onPress={sheets.openBrand}
+                error={errors[key('brand')]}
+              />
+              {prize.brand === OTHER_BRAND ? (
+                <ClayTextInput
+                  label="¿Cuál marca?"
+                  value={prize.brandOther}
+                  onChangeText={(value) => wizard.setPrizeField(index, 'brandOther', value)}
+                  placeholder="Escribe la marca"
+                  autoCapitalize="words"
+                  icon="create-outline"
+                  error={errors[key('brandOther')]}
+                />
+              ) : null}
+            </>
+          ) : null}
+          {needsOtherDescription ? (
+            <ClayTextInput
+              label={otherDef?.descriptionLabel ?? 'Descripción del bien'}
+              value={prize.description}
+              onChangeText={(value) => wizard.setPrizeField(index, 'description', value)}
+              placeholder="Ej: Viaje a San Andrés para 2 personas, 4 noches..."
+              autoCapitalize="sentences"
+              icon="create-outline"
+              error={errors[key('description')]}
+            />
+          ) : null}
+          {otherDef && !needsOtherDescription && otherDef.label !== 'Efectivo' ? (
+            <ClayTextInput
+              label="Detalles (opcional)"
+              value={prize.description}
+              onChangeText={(value) => wizard.setPrizeField(index, 'description', value)}
+              placeholder="Ej: No frost, 300 litros..."
+              autoCapitalize="sentences"
+              icon="create-outline"
+            />
+          ) : null}
+        </>
       ) : null}
 
       {prize.category ? (
@@ -303,12 +370,42 @@ export function PrizeForm({ index, prize, wizard }: PrizeFormProps) {
       />
       <ClayPickerSheet
         visible={sheets.isBrandOpen}
-        title={prize.vehicleType ? `Marcas — ${prize.vehicleType}` : 'Marca'}
+        title={
+          prize.category === 'otro'
+            ? `Marcas — ${prize.otherCategory || 'bien'}`
+            : prize.vehicleType
+              ? `Marcas — ${prize.vehicleType}`
+              : 'Marca'
+        }
         options={brandOptions}
         selectedValue={prize.brand || null}
         searchable
         onSelect={(value) => wizard.setPrizeField(index, 'brand', value)}
         onClose={sheets.closeBrand}
+      />
+      <ClayPickerSheet
+        visible={sheets.isOtherCategoryOpen}
+        title="¿Qué tipo de bien?"
+        options={otherCategoryOptions}
+        selectedValue={prize.otherCategory || null}
+        onSelect={(value) => {
+          if (value !== prize.otherCategory) {
+            // Tipo y marca dependen de la subcategoría: al cambiarla se limpian.
+            wizard.setPrizeField(index, 'otherKind', '');
+            wizard.setPrizeField(index, 'brand', '');
+            wizard.setPrizeField(index, 'brandOther', '');
+          }
+          wizard.setPrizeField(index, 'otherCategory', value);
+        }}
+        onClose={sheets.closeOtherCategory}
+      />
+      <ClayPickerSheet
+        visible={sheets.isOtherKindOpen}
+        title={prize.otherCategory ? `Tipo — ${prize.otherCategory}` : 'Tipo'}
+        options={otherKindOptions}
+        selectedValue={prize.otherKind || null}
+        onSelect={(value) => wizard.setPrizeField(index, 'otherKind', value)}
+        onClose={sheets.closeOtherKind}
       />
       <ClayPickerSheet
         visible={invoiceFlow.activeSlot !== null}
