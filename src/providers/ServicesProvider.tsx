@@ -1,9 +1,11 @@
 import { createContext, useContext, useMemo, type PropsWithChildren } from 'react';
 
 import type { AuthRepository } from '@/domain/auth/AuthRepository';
+import type { DocumentScanner } from '@/domain/documents/DocumentScanner';
 import type { MediaPicker } from '@/domain/media/MediaPicker';
 import type { RegistrationRepository } from '@/domain/registration/RegistrationRepository';
 import { MockAuthRepository } from '@/infrastructure/auth/MockAuthRepository';
+import { MlKitDocumentScanner } from '@/infrastructure/documents/MlKitDocumentScanner';
 import { ExpoMediaPicker } from '@/infrastructure/media/ExpoMediaPicker';
 import { MockRegistrationRepository } from '@/infrastructure/registration/MockRegistrationRepository';
 
@@ -11,6 +13,7 @@ export type Services = {
   auth: AuthRepository;
   registration: RegistrationRepository;
   mediaPicker: MediaPicker;
+  documentScanner: DocumentScanner;
 };
 
 const ServicesContext = createContext<Services | null>(null);
@@ -26,6 +29,7 @@ export function ServicesProvider({ children }: PropsWithChildren) {
       auth: new MockAuthRepository(),
       registration: new MockRegistrationRepository(),
       mediaPicker: new ExpoMediaPicker(),
+      documentScanner: new MlKitDocumentScanner(),
     }),
     [],
   );

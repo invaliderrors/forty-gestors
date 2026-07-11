@@ -1,6 +1,8 @@
 import { useMemo, useReducer } from 'react';
 
+import { analyzeDocument, buildAnalysisContext } from '@/application/registration/analyzeDocument';
 import { AppError } from '@/domain/auth/errors';
+import type { DocumentAnalysis, DocumentAttachment } from '@/domain/documents/analysis';
 import type { PickedFile } from '@/domain/media/types';
 import type {
   ContactData,
@@ -37,12 +39,14 @@ type SubmitState =
   | { status: 'error'; message: string }
   | { status: 'success'; result: RegistrationResult };
 
+type WizardDocuments = Partial<Record<DocumentKind, DocumentAttachment>>;
+
 type WizardState = {
   step: WizardStep;
   showErrors: boolean;
   identity: IdentityData;
   contact: ContactData;
-  documents: RegistrationDocuments;
+  documents: WizardDocuments;
   security: SecurityData;
   submit: SubmitState;
 };
@@ -50,7 +54,8 @@ type WizardState = {
 type WizardAction =
   | { type: 'set_identity'; field: keyof IdentityData; value: string }
   | { type: 'set_contact'; field: keyof ContactData; value: string }
-  | { type: 'set_document'; kind: DocumentKind; file: PickedFile }
+  | { type: 'attach_document'; kind: DocumentKind; file: PickedFile }
+  | { type: 'document_analyzed'; kind: DocumentKind; uri: string; analysis: DocumentAnalysis }
   | { type: 'remove_document'; kind: DocumentKind }
   | { type: 'set_security'; field: 'password' | 'confirmPassword'; value: string }
   | { type: 'toggle_terms' }
@@ -98,8 +103,29 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
       return { ...state, identity: { ...state.identity, [action.field]: action.value } };
     case 'set_contact':
       return { ...state, contact: { ...state.contact, [action.field]: action.value } };
-    case 'set_document':
-      return { ...state, documents: { ...state.documents, [action.kind]: action.file } };
+    case 'attach_document':
+      return {
+        ...state,
+        documents: {
+          ...state.documents,
+          [action.kind]: { file: action.file, analysis: { status: 'analyzing' } },
+        },
+      };
+    case 'document_analyzed': {
+      // Guarda contra carreras: si el usuario reemplazó el archivo mientras
+      // corría el análisis, este resultado ya no aplica.
+      const current = state.documents[action.kind];
+      if (!current || current.file.uri !== action.uri) {
+        return state;
+      }
+      return {
+        ...state,
+        documents: {
+          ...state.documents,
+          [action.kind]: { ...current, analysis: action.analysis },
+        },
+      };
+    }
     case 'remove_document': {
       const documents = { ...state.documents };
       delete documents[action.kind];
@@ -183,8 +209,20 @@ function validateContact(contact: ContactData): WizardErrors {
 function validateDocuments(state: WizardState): WizardErrors {
   const errors: WizardErrors = {};
   for (const slot of documentSlotsFor(state.identity.personaType)) {
-    if (slot.required && !state.documents[slot.kind]) {
+    if (!slot.required) {
+      continue;
+    }
+    const attachment = state.documents[slot.kind];
+    if (!attachment) {
       errors[slot.kind] = 'Este documento es obligatorio.';
+      continue;
+    }
+    if (attachment.analysis.status === 'analyzing') {
+      errors[slot.kind] = 'Estamos verificando este documento, espera un momento.';
+      continue;
+    }
+    if (attachment.analysis.status === 'rejected') {
+      errors[slot.kind] = 'Este documento no pasó la verificación. Súbelo de nuevo.';
     }
   }
   return errors;
@@ -217,9 +255,19 @@ function validateStep(state: WizardState): WizardErrors {
   }
 }
 
+function toSubmittableDocuments(documents: WizardDocuments): RegistrationDocuments {
+  const files: RegistrationDocuments = {};
+  for (const [kind, attachment] of Object.entries(documents)) {
+    if (attachment) {
+      files[kind as DocumentKind] = attachment.file;
+    }
+  }
+  return files;
+}
+
 /** @param personaType Fijado por la pantalla previa de selección de tipo de cuenta. */
 export function useRegisterWizard(personaType: PersonaType) {
-  const { registration } = useServices();
+  const { registration, documentScanner } = useServices();
   const [state, dispatch] = useReducer(reducer, personaType, buildInitialState);
 
   const stepErrors = useMemo(() => validateStep(state), [state]);
@@ -233,6 +281,15 @@ export function useRegisterWizard(personaType: PersonaType) {
     dispatch({ type: 'go_next' });
   };
 
+  /** Adjunta y dispara la verificación (OCR + reglas) en segundo plano. */
+  const attachDocument = (kind: DocumentKind, file: PickedFile) => {
+    dispatch({ type: 'attach_document', kind, file });
+    const context = buildAnalysisContext(kind, state.identity);
+    void analyzeDocument(documentScanner, file, context).then((analysis) => {
+      dispatch({ type: 'document_analyzed', kind, uri: file.uri, analysis });
+    });
+  };
+
   const submit = async () => {
     if (Object.keys(stepErrors).length > 0) {
       dispatch({ type: 'show_errors' });
@@ -243,7 +300,7 @@ export function useRegisterWizard(personaType: PersonaType) {
       const result = await registration.submit({
         identity: state.identity,
         contact: state.contact,
-        documents: state.documents,
+        documents: toSubmittableDocuments(state.documents),
         password: state.security.password,
       });
       dispatch({ type: 'submit_succeeded', result });
@@ -268,8 +325,7 @@ export function useRegisterWizard(personaType: PersonaType) {
       dispatch({ type: 'set_identity', field, value }),
     setContact: (field: keyof ContactData, value: string) =>
       dispatch({ type: 'set_contact', field, value }),
-    setDocument: (kind: DocumentKind, file: PickedFile) =>
-      dispatch({ type: 'set_document', kind, file }),
+    attachDocument,
     removeDocument: (kind: DocumentKind) => dispatch({ type: 'remove_document', kind }),
     setSecurity: (field: 'password' | 'confirmPassword', value: string) =>
       dispatch({ type: 'set_security', field, value }),

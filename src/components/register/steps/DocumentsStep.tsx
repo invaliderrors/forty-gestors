@@ -74,7 +74,7 @@ export function DocumentsStep({ wizard }: DocumentsStepProps) {
             ? await mediaPicker.pickFromGallery()
             : await mediaPicker.pickDocumentFile();
       if (file) {
-        wizard.setDocument(kind, file);
+        wizard.attachDocument(kind, file);
       }
     } catch (error) {
       setPickError(
@@ -146,7 +146,7 @@ export function DocumentsStep({ wizard }: DocumentsStepProps) {
         <DocumentUploadCard
           key={slot.kind}
           slot={slot}
-          file={wizard.state.documents[slot.kind] ?? null}
+          attachment={wizard.state.documents[slot.kind] ?? null}
           error={wizard.visibleErrors[slot.kind]}
           onPick={() => setActiveSlot(slot)}
           onRemove={() => wizard.removeDocument(slot.kind)}

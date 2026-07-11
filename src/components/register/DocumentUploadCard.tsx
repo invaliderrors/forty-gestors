@@ -2,39 +2,66 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { PickedFile } from '@/domain/media/types';
+import { LoadingDots } from '@/components/shared/LoadingDots';
+import type { DocumentAttachment } from '@/domain/documents/analysis';
 import type { DocumentSlot } from '@/domain/registration/types';
 import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
 
 type DocumentUploadCardProps = {
   slot: DocumentSlot;
-  file: PickedFile | null;
+  attachment: DocumentAttachment | null;
   error?: string;
   onPick: () => void;
   onRemove: () => void;
 };
 
-/** Card clay de un documento KYC: vacía (subir) o con la evidencia adjunta. */
-export function DocumentUploadCard({ slot, file, error, onPick, onRemove }: DocumentUploadCardProps) {
+/**
+ * Card clay de un documento KYC. Estados: vacía (subir), verificando
+ * (OCR en curso), verificado (aprobado) y rechazado (volver a intentar).
+ */
+export function DocumentUploadCard({
+  slot,
+  attachment,
+  error,
+  onPick,
+  onRemove,
+}: DocumentUploadCardProps) {
   const acceptsLabel = slot.accepts.includes('pdf') ? 'Foto o PDF' : 'Foto';
+  const analysis = attachment?.analysis ?? null;
+  const isAnalyzing = analysis?.status === 'analyzing';
+
+  const borderStyle =
+    analysis === null
+      ? styles.cardEmpty
+      : analysis.status === 'analyzing'
+        ? styles.cardAnalyzing
+        : analysis.status === 'approved'
+          ? styles.cardApproved
+          : styles.cardRejected;
 
   return (
     <View style={styles.container}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={file ? `Reemplazar ${slot.title}` : `Subir ${slot.title}`}
+        accessibilityLabel={attachment ? `Reemplazar ${slot.title}` : `Subir ${slot.title}`}
+        accessibilityState={{ busy: isAnalyzing }}
         onPress={onPick}
+        disabled={isAnalyzing}
         style={({ pressed }) => [
           styles.card,
-          file ? styles.cardFilled : styles.cardEmpty,
+          borderStyle,
           error ? styles.cardError : null,
           pressed && styles.cardPressed,
         ]}
       >
-        {file ? (
+        {attachment ? (
           <>
-            {file.kind === 'image' ? (
-              <Image source={{ uri: file.uri }} style={styles.thumbnail} contentFit="cover" />
+            {attachment.file.kind === 'image' ? (
+              <Image
+                source={{ uri: attachment.file.uri }}
+                style={styles.thumbnail}
+                contentFit="cover"
+              />
             ) : (
               <View style={styles.pdfBadge}>
                 <Ionicons name="document-text" size={26} color={colors.accentDeep} />
@@ -43,23 +70,45 @@ export function DocumentUploadCard({ slot, file, error, onPick, onRemove }: Docu
             )}
             <View style={styles.body}>
               <Text style={styles.title}>{slot.title}</Text>
-              <Text style={styles.fileName} numberOfLines={1}>
-                {file.name}
-              </Text>
-              <View style={styles.filledTagRow}>
-                <Ionicons name="checkmark-circle" size={15} color={colors.successDeep} />
-                <Text style={styles.filledTag}>Adjunto — toca para reemplazar</Text>
-              </View>
+              {analysis?.status === 'analyzing' ? (
+                <View style={styles.statusRow}>
+                  <LoadingDots color={colors.accentDeep} size={5} />
+                  <Text style={styles.analyzingTag}>Verificando documento…</Text>
+                </View>
+              ) : null}
+              {analysis?.status === 'approved' ? (
+                <>
+                  <View style={styles.statusRow}>
+                    <Ionicons name="shield-checkmark" size={15} color={colors.successDeep} />
+                    <Text style={styles.approvedTag}>
+                      Verificado — toca para reemplazar
+                    </Text>
+                  </View>
+                  {analysis.note ? <Text style={styles.note}>{analysis.note}</Text> : null}
+                </>
+              ) : null}
+              {analysis?.status === 'rejected' ? (
+                <>
+                  <View style={styles.statusRow}>
+                    <Ionicons name="alert-circle" size={15} color={colors.danger} />
+                    <Text style={styles.rejectedTag}>No pasó la verificación</Text>
+                  </View>
+                  <Text style={styles.rejectedReason}>{analysis.reason}</Text>
+                  <Text style={styles.retryHint}>Toca para intentar de nuevo</Text>
+                </>
+              ) : null}
             </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Quitar ${slot.title}`}
-              onPress={onRemove}
-              hitSlop={10}
-              style={styles.removeButton}
-            >
-              <Ionicons name="close" size={17} color={colors.textSecondary} />
-            </Pressable>
+            {!isAnalyzing ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Quitar ${slot.title}`}
+                onPress={onRemove}
+                hitSlop={10}
+                style={styles.removeButton}
+              >
+                <Ionicons name="close" size={17} color={colors.textSecondary} />
+              </Pressable>
+            ) : null}
           </>
         ) : (
           <>
@@ -93,17 +142,21 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderRadius: radii.xl,
     padding: spacing.lg,
-  },
-  cardEmpty: {
     backgroundColor: colors.surface,
     borderWidth: 2,
+  },
+  cardEmpty: {
     borderStyle: 'dashed',
     borderColor: colors.inputBorder,
   },
-  cardFilled: {
-    backgroundColor: colors.surface,
-    borderWidth: 2,
+  cardAnalyzing: {
+    borderColor: colors.accent,
+  },
+  cardApproved: {
     borderColor: colors.success,
+  },
+  cardRejected: {
+    borderColor: colors.danger,
   },
   cardError: {
     borderColor: colors.inputBorderError,
@@ -168,21 +221,44 @@ const styles = StyleSheet.create({
     color: colors.accentDeep,
     marginTop: 2,
   },
-  fileName: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.caption,
-    color: colors.textSecondary,
-  },
-  filledTagRow: {
+  statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     marginTop: 2,
   },
-  filledTag: {
+  analyzingTag: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSizes.micro,
+    color: colors.accentDeep,
+  },
+  approvedTag: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.micro,
     color: colors.successDeep,
+  },
+  rejectedTag: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSizes.micro,
+    color: colors.danger,
+  },
+  rejectedReason: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.caption,
+    lineHeight: 17,
+    color: colors.textSecondary,
+  },
+  retryHint: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSizes.micro,
+    color: colors.accentDeep,
+    marginTop: 2,
+  },
+  note: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.micro,
+    lineHeight: 15,
+    color: colors.textMuted,
   },
   removeButton: {
     width: 30,

@@ -21,6 +21,8 @@ function mapImageAsset(asset: ImagePicker.ImagePickerAsset): PickedFile {
     mimeType: asset.mimeType ?? 'image/jpeg',
     kind: 'image',
     sizeBytes: asset.fileSize ?? undefined,
+    width: asset.width,
+    height: asset.height,
   };
 }
 
