@@ -1,14 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
@@ -90,10 +82,7 @@ export function AuthShell({
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.sheetWrapper}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <View style={styles.sheetWrapper}>
         <View style={styles.sheet}>
           <SheetBlob
             id="sheetBlobGold"
@@ -118,7 +107,7 @@ export function AuthShell({
             {children}
           </KeyboardAwareScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }
