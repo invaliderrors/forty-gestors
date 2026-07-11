@@ -7,11 +7,15 @@ type MockUser = {
   displayName: string;
 };
 
-type StoredRegistration = {
+type PendingRegistration = {
   registrationId: string;
   draft: RegistrationDraft;
+  otpCode: string;
   receivedAt: string;
 };
+
+/** Código OTP fijo del entorno mock (el backend real lo enviará por correo). */
+export const DEMO_OTP_CODE = '123456';
 
 /**
  * Base de datos en memoria compartida por los mocks: lo que se registra
@@ -30,7 +34,7 @@ export const mockDb = {
       },
     ],
   ]),
-  registrations: [] as StoredRegistration[],
+  pendingRegistrations: new Map<string, PendingRegistration>(),
 };
 
 export function createMockId(prefix: string): string {

@@ -36,12 +36,20 @@ type SecurityData = {
 type SubmitState =
   | { status: 'idle' }
   | { status: 'submitting' }
-  | { status: 'error'; message: string }
-  | { status: 'success'; result: RegistrationResult };
+  | { status: 'error'; message: string };
+
+type OtpState =
+  | { status: 'idle' }
+  | { status: 'checking' }
+  | { status: 'error'; message: string };
+
+/** Fases del flujo: formulario → código al correo → bienvenida. */
+type WizardPhase = 'form' | 'verification' | 'welcome';
 
 type WizardDocuments = Partial<Record<DocumentKind, DocumentAttachment>>;
 
 type WizardState = {
+  phase: WizardPhase;
   step: WizardStep;
   showErrors: boolean;
   identity: IdentityData;
@@ -49,6 +57,8 @@ type WizardState = {
   documents: WizardDocuments;
   security: SecurityData;
   submit: SubmitState;
+  registration: RegistrationResult | null;
+  otp: OtpState;
 };
 
 type WizardAction =
@@ -64,12 +74,18 @@ type WizardAction =
   | { type: 'go_back' }
   | { type: 'submit_started' }
   | { type: 'submit_failed'; message: string }
-  | { type: 'submit_succeeded'; result: RegistrationResult };
+  | { type: 'submit_succeeded'; result: RegistrationResult }
+  | { type: 'otp_check_started' }
+  | { type: 'otp_failed'; message: string }
+  | { type: 'otp_verified' };
 
 function buildInitialState(personaType: PersonaType): WizardState {
   return {
+    phase: 'form',
     step: 0,
     showErrors: false,
+    registration: null,
+    otp: { status: 'idle' },
     identity: {
       personaType,
       docType: 'CC',
@@ -149,7 +165,19 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
     case 'submit_failed':
       return { ...state, submit: { status: 'error', message: action.message } };
     case 'submit_succeeded':
-      return { ...state, submit: { status: 'success', result: action.result } };
+      return {
+        ...state,
+        submit: { status: 'idle' },
+        registration: action.result,
+        phase: 'verification',
+        otp: { status: 'idle' },
+      };
+    case 'otp_check_started':
+      return { ...state, otp: { status: 'checking' } };
+    case 'otp_failed':
+      return { ...state, otp: { status: 'error', message: action.message } };
+    case 'otp_verified':
+      return { ...state, otp: { status: 'idle' }, phase: 'welcome' };
     default:
       return state;
   }
@@ -315,6 +343,33 @@ export function useRegisterWizard(personaType: PersonaType) {
     }
   };
 
+  /** Valida el código enviado al correo; al aprobar pasa a la bienvenida. */
+  const verifyCode = async (code: string) => {
+    if (!state.registration || state.otp.status === 'checking') {
+      return;
+    }
+    dispatch({ type: 'otp_check_started' });
+    try {
+      await registration.verifyCode(state.registration.registrationId, code);
+      dispatch({ type: 'otp_verified' });
+    } catch (error) {
+      dispatch({
+        type: 'otp_failed',
+        message:
+          error instanceof AppError
+            ? error.message
+            : 'No pudimos validar el código. Intenta de nuevo.',
+      });
+    }
+  };
+
+  const resendCode = async () => {
+    if (!state.registration) {
+      return;
+    }
+    await registration.resendCode(state.registration.registrationId);
+  };
+
   return {
     state,
     visibleErrors,
@@ -331,6 +386,8 @@ export function useRegisterWizard(personaType: PersonaType) {
       dispatch({ type: 'set_security', field, value }),
     toggleTerms: () => dispatch({ type: 'toggle_terms' }),
     submit,
+    verifyCode,
+    resendCode,
   };
 }
 

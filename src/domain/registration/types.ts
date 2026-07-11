@@ -75,7 +75,9 @@ export type RegistrationDraft = {
 
 export type RegistrationResult = {
   registrationId: string;
-  status: 'pending_review';
+  /** Correo al que se envió el código de verificación. */
+  email: string;
+  status: 'verification_sent';
 };
 
 const NATURAL_SLOTS: readonly DocumentSlot[] = [

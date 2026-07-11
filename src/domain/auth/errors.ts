@@ -25,3 +25,9 @@ export class EmailAlreadyTakenError extends AppError {
     super('AUTH/EMAIL_ALREADY_TAKEN', 'Ya existe una cuenta con este correo.');
   }
 }
+
+export class InvalidOtpError extends AppError {
+  constructor() {
+    super('AUTH/OTP_INVALID', 'El código no es correcto. Revísalo e intenta de nuevo.');
+  }
+}
