@@ -30,6 +30,12 @@ export const clayTextInputStyles = StyleSheet.create({
     color: colors.textPrimary,
     paddingVertical: 12,
   },
+  suffix: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.body,
+    color: colors.textPrimary,
+    marginRight: spacing.sm,
+  },
   error: {
     fontFamily: fonts.medium,
     fontSize: fontSizes.caption,

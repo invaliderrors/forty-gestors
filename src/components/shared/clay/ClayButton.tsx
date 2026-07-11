@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
 import { LoadingDots } from '@/components/shared/LoadingDots';
@@ -12,6 +13,8 @@ type ClayButtonProps = {
   variant?: ClayButtonVariant;
   loading?: boolean;
   disabled?: boolean;
+  /** Icono a la izquierda del texto (ej: compartir). */
+  icon?: keyof typeof Ionicons.glyphMap;
 };
 
 /**
@@ -24,6 +27,7 @@ export function ClayButton({
   variant = 'primary',
   loading = false,
   disabled = false,
+  icon,
 }: ClayButtonProps) {
   const isInactive = disabled || loading;
 
@@ -80,7 +84,10 @@ export function ClayButton({
               {loading ? (
                 <LoadingDots color={labelColor} />
               ) : (
-                <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+                <View style={styles.faceContent}>
+                  {icon ? <Ionicons name={icon} size={18} color={labelColor} /> : null}
+                  <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+                </View>
               )}
             </View>
           </View>

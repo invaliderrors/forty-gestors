@@ -22,6 +22,8 @@ type ClayTextInputProps = {
   trailingIcon?: keyof typeof Ionicons.glyphMap;
   trailingAccessibilityLabel?: string;
   onTrailingPress?: () => void;
+  /** Texto fijo al final del valor (ej: "%"). */
+  suffix?: string;
 };
 
 /** Input claymórfico hundido: fondo azulado en reposo, blanco + halo cyan al foco. */
@@ -41,6 +43,7 @@ export function ClayTextInput({
   trailingIcon,
   trailingAccessibilityLabel,
   onTrailingPress,
+  suffix,
 }: ClayTextInputProps) {
   const { isFocused, isSecretVisible, handleFocus, handleBlur, toggleSecret } =
     useTextFieldState();
@@ -83,6 +86,7 @@ export function ClayTextInput({
           onBlur={handleBlur}
           accessibilityLabel={label}
         />
+        {suffix && value.length > 0 ? <Text style={styles.suffix}>{suffix}</Text> : null}
         {secureTextEntry ? (
           <Pressable
             onPress={toggleSecret}

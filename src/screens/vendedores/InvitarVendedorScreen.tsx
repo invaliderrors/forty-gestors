@@ -3,19 +3,24 @@ import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { useInviteSeller } from '@/application/vendedores/useInviteSeller';
+import { InvitationTemplate } from '@/components/vendedores/InvitationTemplate';
 import { AuthShell } from '@/components/shared/AuthShell';
 import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayCheckbox } from '@/components/shared/clay/ClayCheckbox';
 import { ClayNotice } from '@/components/shared/clay/ClayNotice';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { SELLER_PERMISSIONS } from '@/domain/vendedores/types';
+import { useInvitationShare } from '@/hooks/vendedores/useInvitationShare';
+import { useSession } from '@/providers/SessionProvider';
 import { invitarVendedorStyles as styles } from '@/styles/vendedores/invitarVendedor.styles';
 import { colors } from '@/theme';
 
 /** Invitación de un vendedor: datos, permisos específicos y comisión. */
 export function InvitarVendedorScreen() {
   const router = useRouter();
+  const { session } = useSession();
   const form = useInviteSeller();
+  const invitationShare = useInvitationShare();
 
   if (form.submit.status === 'success') {
     const { seller } = form.submit;
@@ -34,7 +39,22 @@ export function InvitarVendedorScreen() {
             <Text style={styles.codeLabel}>Código de invitación</Text>
             <Text style={styles.codeValue}>{seller.invitationCode}</Text>
           </View>
-          <ClayButton label="Volver a vendedores" onPress={() => router.back()} />
+          {invitationShare.shareError ? (
+            <ClayNotice tone="error" message={invitationShare.shareError} />
+          ) : null}
+          <ClayButton
+            label="Compartir invitación"
+            icon="share-social"
+            onPress={() => void invitationShare.share()}
+            loading={invitationShare.isSharing}
+          />
+          <ClayButton label="Volver a vendedores" variant="ghost" onPress={() => router.back()} />
+          <InvitationTemplate
+            viewRef={invitationShare.templateRef}
+            sellerName={seller.fullName}
+            gestorName={session?.displayName ?? 'Tu gestor'}
+            invitationCode={seller.invitationCode}
+          />
         </View>
       </AuthShell>
     );
@@ -116,6 +136,7 @@ export function InvitarVendedorScreen() {
         keyboardType="number-pad"
         maxLength={2}
         icon="cash-outline"
+        suffix="%"
         error={form.visibleErrors.commission}
         helper="Porcentaje sobre cada boleta que venda."
       />

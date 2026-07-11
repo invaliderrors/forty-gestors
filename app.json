@@ -41,7 +41,8 @@
           "photosPermission": "Fortu Gestor accede a tus fotos para adjuntar los documentos del registro."
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-sharing"
     ],
     "experiments": {
       "reactCompiler": true

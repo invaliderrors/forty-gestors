@@ -19,6 +19,11 @@ export const clayButtonStyles = StyleSheet.create({
     borderTopWidth: 1.5,
     borderTopColor: colors.ctaFaceHighlight,
   },
+  faceContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   label: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.subtitle,

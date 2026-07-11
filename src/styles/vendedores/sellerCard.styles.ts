@@ -28,6 +28,7 @@ export const sellerCardStyles = StyleSheet.create({
   },
   identity: {
     flex: 1,
+    gap: 1,
   },
   name: {
     fontFamily: fonts.semibold,
@@ -38,7 +39,10 @@ export const sellerCardStyles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: fontSizes.caption,
     color: colors.textSecondary,
-    marginTop: 1,
+  },
+  rightColumn: {
+    alignItems: 'flex-end',
+    gap: 6,
   },
   statusChip: {
     flexDirection: 'row',
@@ -70,69 +74,77 @@ export const sellerCardStyles = StyleSheet.create({
   statusLabelInactivo: {
     color: colors.textMuted,
   },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  metaChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.surfaceSunken,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-  },
-  metaLabel: {
-    fontFamily: fonts.semibold,
-    fontSize: fontSizes.micro,
-    color: colors.textSecondary,
-  },
-  codeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.goldSoftBg,
-    borderRadius: radii.md,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: colors.ctaFace,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  codeLabel: {
-    flex: 1,
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.micro,
-    lineHeight: 15,
-    color: colors.textSecondary,
-  },
-  codeValue: {
-    fontFamily: fonts.display,
-    fontSize: fontSizes.body,
-    letterSpacing: 2,
-    color: colors.ctaDepth,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  actionButton: {
-    paddingVertical: 6,
-    paddingHorizontal: spacing.md,
+  actionLink: {
+    paddingVertical: 2,
+    paddingHorizontal: spacing.xs,
   },
   actionPressed: {
     opacity: 0.6,
   },
   actionLabel: {
     fontFamily: fonts.semibold,
-    fontSize: fontSizes.caption,
+    fontSize: fontSizes.micro,
   },
   actionActivate: {
     color: colors.successDeep,
   },
   actionDeactivate: {
     color: colors.danger,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.surfaceBorder,
+  },
+  metaLine: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.caption,
+    color: colors.textSecondary,
+  },
+  permissionsLine: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.caption,
+    color: colors.textMuted,
+  },
+  codeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.goldSoftBg,
+    borderRadius: radii.md,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.ctaFace,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  codeBlock: {
+    flex: 1,
+    gap: 1,
+  },
+  codeLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: 9,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+  },
+  codeValue: {
+    fontFamily: fonts.display,
+    fontSize: fontSizes.subtitle,
+    letterSpacing: 3,
+    color: colors.textPrimary,
+  },
+  shareButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radii.md,
+    backgroundColor: colors.ctaFace,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.ctaDepth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sharePressed: {
+    opacity: 0.7,
   },
 });

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
+import { InvitationTemplate } from '@/components/vendedores/InvitationTemplate';
 import { ClayCard } from '@/components/shared/clay/ClayCard';
 import { LoadingDots } from '@/components/shared/LoadingDots';
 import {
@@ -9,6 +10,8 @@ import {
   sellerInitials,
   type Seller,
 } from '@/domain/vendedores/types';
+import { useInvitationShare } from '@/hooks/vendedores/useInvitationShare';
+import { useSession } from '@/providers/SessionProvider';
 import { sellerCardStyles as styles } from '@/styles/vendedores/sellerCard.styles';
 import { colors } from '@/theme';
 
@@ -18,8 +21,11 @@ type SellerCardProps = {
   onToggleStatus: () => void;
 };
 
-/** Card de un vendedor: identidad, estado, permisos, comisión y acciones. */
+/** Card compacta de un vendedor: identidad + estado y acción a la derecha. */
 export function SellerCard({ seller, isBusy, onToggleStatus }: SellerCardProps) {
+  const { session } = useSession();
+  const invitationShare = useInvitationShare();
+
   const statusChipStyle =
     seller.status === 'invitado'
       ? styles.statusChipInvitado
@@ -32,6 +38,12 @@ export function SellerCard({ seller, isBusy, onToggleStatus }: SellerCardProps) 
       : seller.status === 'activo'
         ? styles.statusLabelActivo
         : styles.statusLabelInactivo;
+
+  const metaParts = [
+    seller.id,
+    seller.commissionPercent > 0 ? `${seller.commissionPercent}% comisión` : null,
+    `${seller.soldTickets} vendidas`,
+  ].filter(Boolean);
 
   const permissionLabels = SELLER_PERMISSIONS.filter((entry) =>
     seller.permissions.includes(entry.value),
@@ -51,87 +63,95 @@ export function SellerCard({ seller, isBusy, onToggleStatus }: SellerCardProps) 
           </Text>
           <Text style={styles.phone}>{seller.phone}</Text>
         </View>
-        <View style={[styles.statusChip, statusChipStyle]}>
-          <Ionicons
-            name={
-              seller.status === 'invitado'
-                ? 'mail-unread-outline'
-                : seller.status === 'activo'
-                  ? 'checkmark-circle'
-                  : 'pause-circle'
-            }
-            size={12}
-            color={
-              seller.status === 'invitado'
-                ? colors.accentDeep
-                : seller.status === 'activo'
-                  ? colors.successDeep
-                  : colors.textMuted
-            }
-          />
-          <Text style={[styles.statusLabel, statusLabelStyle]}>
-            {SELLER_STATUS_LABEL[seller.status]}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.metaRow}>
-        {seller.commissionPercent > 0 ? (
-          <View style={styles.metaChip}>
-            <Ionicons name="cash-outline" size={12} color={colors.textSecondary} />
-            <Text style={styles.metaLabel}>{seller.commissionPercent}% comisión</Text>
+        <View style={styles.rightColumn}>
+          <View style={[styles.statusChip, statusChipStyle]}>
+            <Ionicons
+              name={
+                seller.status === 'invitado'
+                  ? 'mail-unread-outline'
+                  : seller.status === 'activo'
+                    ? 'checkmark-circle'
+                    : 'pause-circle'
+              }
+              size={12}
+              color={
+                seller.status === 'invitado'
+                  ? colors.accentDeep
+                  : seller.status === 'activo'
+                    ? colors.successDeep
+                    : colors.textMuted
+              }
+            />
+            <Text style={[styles.statusLabel, statusLabelStyle]}>
+              {SELLER_STATUS_LABEL[seller.status]}
+            </Text>
           </View>
-        ) : null}
-        <View style={styles.metaChip}>
-          <Ionicons name="ticket-outline" size={12} color={colors.textSecondary} />
-          <Text style={styles.metaLabel}>{seller.soldTickets} boletas vendidas</Text>
-        </View>
-        <View style={styles.metaChip}>
-          <Ionicons name="document-text-outline" size={12} color={colors.textSecondary} />
-          <Text style={styles.metaLabel}>{seller.id}</Text>
+          {isBusy ? (
+            <LoadingDots color={colors.textMuted} size={4} />
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={
+                seller.status === 'inactivo' ? 'Activar vendedor' : 'Desactivar vendedor'
+              }
+              onPress={onToggleStatus}
+              hitSlop={8}
+              style={({ pressed }) => [styles.actionLink, pressed && styles.actionPressed]}
+            >
+              <Text
+                style={[
+                  styles.actionLabel,
+                  seller.status === 'inactivo' ? styles.actionActivate : styles.actionDeactivate,
+                ]}
+              >
+                {seller.status === 'inactivo' ? 'Activar' : 'Desactivar'}
+              </Text>
+            </Pressable>
+          )}
         </View>
       </View>
 
+      <View style={styles.divider} />
+
+      <Text style={styles.metaLine} numberOfLines={1}>
+        {metaParts.join(' · ')}
+      </Text>
       {permissionLabels ? (
-        <View style={styles.metaRow}>
-          <View style={styles.metaChip}>
-            <Ionicons name="key-outline" size={12} color={colors.textSecondary} />
-            <Text style={styles.metaLabel}>{permissionLabels}</Text>
-          </View>
-        </View>
+        <Text style={styles.permissionsLine} numberOfLines={1}>
+          Permisos: {permissionLabels}
+        </Text>
       ) : null}
 
       {seller.status === 'invitado' ? (
-        <View style={styles.codeRow}>
-          <Text style={styles.codeLabel}>
-            Comparte este código con tu vendedor para que active su cuenta:
-          </Text>
-          <Text style={styles.codeValue}>{seller.invitationCode}</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.actionRow}>
-        {isBusy ? (
-          <LoadingDots color={colors.textMuted} size={5} />
-        ) : (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={seller.status === 'inactivo' ? 'Activar vendedor' : 'Desactivar vendedor'}
-            onPress={onToggleStatus}
-            hitSlop={8}
-            style={({ pressed }) => [styles.actionButton, pressed && styles.actionPressed]}
-          >
-            <Text
-              style={[
-                styles.actionLabel,
-                seller.status === 'inactivo' ? styles.actionActivate : styles.actionDeactivate,
-              ]}
+        <>
+          <View style={styles.codeRow}>
+            <View style={styles.codeBlock}>
+              <Text style={styles.codeLabel}>Código de invitación</Text>
+              <Text style={styles.codeValue}>{seller.invitationCode}</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Compartir invitación"
+              onPress={() => void invitationShare.share()}
+              disabled={invitationShare.isSharing}
+              hitSlop={8}
+              style={({ pressed }) => [styles.shareButton, pressed && styles.sharePressed]}
             >
-              {seller.status === 'inactivo' ? 'Activar' : 'Desactivar'}
-            </Text>
-          </Pressable>
-        )}
-      </View>
+              {invitationShare.isSharing ? (
+                <LoadingDots color={colors.textOnGold} size={4} />
+              ) : (
+                <Ionicons name="share-social" size={18} color={colors.textOnGold} />
+              )}
+            </Pressable>
+          </View>
+          <InvitationTemplate
+            viewRef={invitationShare.templateRef}
+            sellerName={seller.fullName}
+            gestorName={session?.displayName ?? 'Tu gestor'}
+            invitationCode={seller.invitationCode}
+          />
+        </>
+      ) : null}
     </ClayCard>
   );
 }
