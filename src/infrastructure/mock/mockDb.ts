@@ -1,3 +1,4 @@
+import type { WalletMovement } from '@/domain/billetera/types';
 import type { Rifa } from '@/domain/rifa/types';
 import type { RegistrationDraft } from '@/domain/registration/types';
 import type { Seller } from '@/domain/vendedores/types';
@@ -42,6 +43,7 @@ export const mockDb = {
   rifaCounter: 0,
   sellers: [] as Seller[],
   sellerCounter: 0,
+  walletMovements: [] as WalletMovement[],
 };
 
 /** Número institucional del vendedor: VD-AAAAMM-consecutivo. */
