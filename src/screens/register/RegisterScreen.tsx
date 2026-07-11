@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useRegisterWizard, WIZARD_STEPS } from '@/application/registration/useRegisterWizard';
 import { OtpVerification } from '@/components/register/OtpVerification';
@@ -13,7 +13,7 @@ import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayProgressSteps } from '@/components/shared/clay/ClayProgressSteps';
 import type { PersonaType } from '@/domain/registration/types';
 import { useSession } from '@/providers/SessionProvider';
-import { spacing } from '@/theme';
+import { registerScreenStyles as styles } from '@/styles/register/registerScreen.styles';
 
 const STEP_COPY: Record<PersonaType, { title: string; subtitle: string }[]> = {
   natural: [
@@ -126,9 +126,3 @@ export function RegisterScreen({ personaType }: RegisterScreenProps) {
     </AuthShell>
   );
 }
-
-const styles = StyleSheet.create({
-  footer: {
-    marginTop: spacing.sm,
-  },
-});

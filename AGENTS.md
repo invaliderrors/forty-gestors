@@ -9,15 +9,21 @@ App móvil (Expo SDK 57 + expo-router + React Native + TypeScript estricto) para
 ```
 src/
   app/              # SOLO rutas expo-router (archivos delgados que re-exportan pantallas)
-  screens/<feature>/    # pantalla por feature
-  components/<feature>/ # componentes de esa feature
+  screens/<feature>/    # pantalla por feature (solo render + wiring)
+  components/<feature>/ # componentes de esa feature (solo render)
   components/shared/    # componentes reutilizables (kit clay en shared/clay/)
-  application/<feature>/ # hooks y casos de uso (useLoginForm, useRegisterWizard)
+  styles/<vista>/       # TODOS los StyleSheet, uno por componente: <nombre>.styles.ts
+  hooks/<vista>/        # lógica de UI por vista (animaciones, estados de flujo, cooldowns)
+  application/<feature>/ # casos de uso de negocio (useLoginForm, useRegisterWizard)
   domain/<feature>/      # tipos, puertos (interfaces) y validadores puros — sin I/O ni React
   infrastructure/<feature>/ # implementaciones concretas (Mock*, Expo*, futuros Http*)
-  providers/         # composition root (ServicesProvider)
+  providers/         # composition root (ServicesProvider, SessionProvider)
   theme/             # tokens de diseño (colores, tipografía, sombras clay)
 ```
+
+**Componentes sin estilos ni lógica embebidos** (regla pedida por el usuario, como fortu-app):
+- Los `StyleSheet.create` viven en `src/styles/<vista>/<nombreCamel>.styles.ts` exportando `<nombreCamel>Styles`; el componente los importa `as styles`.
+- La lógica de vista (animaciones, temporizadores, flujos de permisos, OTP) vive en `src/hooks/<vista>/useX.ts`. `application/` queda para casos de uso de negocio.
 
 Reglas:
 - **Imports absolutos siempre**: `@/...` (alias a `src/`) y `@/assets/...`. Nada de `../../..`.

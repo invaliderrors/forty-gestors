@@ -8,10 +8,12 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 
+import {
+  ORB_CYAN_SIZE,
+  ORB_GOLD_SIZE,
+  screenBackgroundStyles as styles,
+} from '@/styles/shared/screenBackground.styles';
 import { colors, palette } from '@/theme';
-
-const ORB_CYAN_SIZE = 340;
-const ORB_GOLD_SIZE = 320;
 
 /**
  * Fondo navy de Fortu Gestor, todo en SVG: gradiente vertical con
@@ -71,20 +73,3 @@ export function ScreenBackground() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  orbCyan: {
-    position: 'absolute',
-    top: -110,
-    right: -90,
-    width: ORB_CYAN_SIZE,
-    height: ORB_CYAN_SIZE,
-  },
-  orbGold: {
-    position: 'absolute',
-    bottom: -100,
-    left: -80,
-    width: ORB_GOLD_SIZE,
-    height: ORB_GOLD_SIZE,
-  },
-});

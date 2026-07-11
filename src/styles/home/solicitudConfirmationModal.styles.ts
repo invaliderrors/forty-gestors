@@ -1,0 +1,75 @@
+import { StyleSheet } from 'react-native';
+
+import { clayShadow, colors, fonts, fontSizes, radii, spacing } from '@/theme';
+
+export const solicitudConfirmationModalStyles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(4,8,15,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xxl,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xxl,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderBottomWidth: 5,
+    borderBottomColor: colors.surfaceDepth,
+    padding: spacing.xxl,
+    alignItems: 'stretch',
+    gap: spacing.lg,
+    ...clayShadow.floating,
+  },
+  badge: {
+    alignSelf: 'center',
+    width: 88,
+    height: 88,
+    borderRadius: 30,
+    backgroundColor: colors.ctaFace,
+    borderBottomWidth: 5,
+    borderBottomColor: colors.ctaDepth,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...clayShadow.goldCta,
+  },
+  title: {
+    fontFamily: fonts.display,
+    fontSize: fontSizes.title,
+    color: colors.textPrimary,
+    textAlign: 'center',
+  },
+  refCard: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.goldSoftBg,
+    borderRadius: radii.lg,
+    borderWidth: 1.5,
+    borderColor: colors.ctaFace,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+  },
+  refLabel: {
+    fontFamily: fonts.semibold,
+    fontSize: fontSizes.micro,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+  },
+  refValue: {
+    fontFamily: fonts.display,
+    fontSize: fontSizes.title,
+    letterSpacing: 1,
+    color: colors.textPrimary,
+  },
+  message: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.caption,
+    lineHeight: 19,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+});

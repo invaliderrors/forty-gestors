@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 // expo-router 57 bundlea su propia copia de bottom-tabs; el tipo se importa
 // de su build (type-only: se borra al compilar, Metro nunca lo resuelve).
 import type { BottomTabBarProps } from 'expo-router/build/layouts/Tabs';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { clayShadow, colors, fonts, radii, spacing } from '@/theme';
+import { clayTabBarStyles as styles } from '@/styles/main/clayTabBar.styles';
+import { clayShadow, colors } from '@/theme';
 
 const TAB_CONFIG: Record<string, { icon: keyof typeof Ionicons.glyphMap; label: string }> = {
   home: { icon: 'home', label: 'Inicio' },
@@ -66,45 +67,3 @@ export function ClayTabBar({ state, navigation }: BottomTabBarProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    position: 'absolute',
-    left: 14,
-    right: 14,
-  },
-  bar: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: radii.xxl,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    borderBottomWidth: 5,
-    borderBottomColor: colors.surfaceDepth,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-    gap: spacing.xs,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    borderRadius: radii.lg,
-    paddingVertical: spacing.sm,
-  },
-  tabActive: {
-    backgroundColor: colors.goldSoftBg,
-  },
-  tabPressed: {
-    opacity: 0.7,
-  },
-  label: {
-    fontFamily: fonts.semibold,
-    fontSize: 10,
-    color: colors.textMuted,
-  },
-  labelActive: {
-    color: colors.textPrimary,
-  },
-});

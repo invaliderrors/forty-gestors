@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { confettiRainStyles as styles } from '@/styles/home/confettiRain.styles';
 import { palette } from '@/theme';
 
 const PIECE_COLORS = [palette.gold, palette.cyan, palette.goldLight, palette.navy300, '#FFFFFF'];
@@ -86,11 +87,3 @@ export function ConfettiRain({ fieldHeight = 190 }: ConfettiRainProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  piece: {
-    position: 'absolute',
-    top: 0,
-    borderRadius: 2,
-  },
-});

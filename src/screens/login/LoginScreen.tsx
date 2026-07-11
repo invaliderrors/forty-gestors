@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { useLoginForm } from '@/application/auth/useLoginForm';
 import { AuthShell } from '@/components/shared/AuthShell';
@@ -10,7 +10,7 @@ import { ClayNotice } from '@/components/shared/clay/ClayNotice';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { FortuLogo } from '@/components/shared/FortuLogo';
 import { useSession } from '@/providers/SessionProvider';
-import { colors, fonts, fontSizes, spacing } from '@/theme';
+import { loginStyles as styles } from '@/styles/auth/login.styles';
 
 export function LoginScreen() {
   const router = useRouter();
@@ -86,29 +86,3 @@ export function LoginScreen() {
     </AuthShell>
   );
 }
-
-const styles = StyleSheet.create({
-  logoRow: {
-    alignItems: 'center',
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.md,
-  },
-  card: {
-    gap: spacing.lg,
-  },
-  registerBlock: {
-    gap: spacing.md,
-  },
-  registerHint: {
-    textAlign: 'center',
-    fontFamily: fonts.medium,
-    fontSize: fontSizes.body,
-    color: colors.textSecondary,
-  },
-  demoHint: {
-    textAlign: 'center',
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.micro,
-    color: colors.textMuted,
-  },
-});

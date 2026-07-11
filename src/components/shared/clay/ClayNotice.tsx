@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
+import { clayNoticeStyles as styles } from '@/styles/clay/clayNotice.styles';
+import { colors } from '@/theme';
 
 type NoticeTone = 'error' | 'info' | 'success';
 
@@ -29,20 +30,3 @@ export function ClayNotice({ tone, message }: ClayNoticeProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  message: {
-    flex: 1,
-    fontFamily: fonts.semibold,
-    fontSize: fontSizes.caption,
-    lineHeight: 18,
-  },
-});

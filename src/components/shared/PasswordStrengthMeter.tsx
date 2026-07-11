@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { scorePassword } from '@/domain/registration/validators';
-import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
+import { passwordStrengthMeterStyles as styles } from '@/styles/shared/passwordStrengthMeter.styles';
+import { colors } from '@/theme';
 
 const LEVELS = [
   { label: 'Muy débil', color: colors.danger },
@@ -39,27 +40,3 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  track: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  segment: {
-    flex: 1,
-    height: 6,
-    borderRadius: radii.pill,
-  },
-  label: {
-    fontFamily: fonts.semibold,
-    fontSize: fontSizes.micro,
-    width: 72,
-    textAlign: 'right',
-  },
-});

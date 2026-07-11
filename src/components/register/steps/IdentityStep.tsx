@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { RegisterWizard } from '@/application/registration/useRegisterWizard';
 import { ClayPickerSheet } from '@/components/shared/clay/ClayPickerSheet';
@@ -8,7 +8,7 @@ import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import type { NaturalDocType } from '@/domain/registration/types';
 import { NATURAL_DOC_TYPES, naturalDocTypeLabel } from '@/domain/registration/types';
 import { computeNitCheckDigit, isAlphanumericDoc } from '@/domain/registration/validators';
-import { colors, fonts, fontSizes, spacing } from '@/theme';
+import { identityStepStyles as styles } from '@/styles/register/identityStep.styles';
 
 const docTypeOptions = NATURAL_DOC_TYPES.map((option) => ({
   value: option.value,
@@ -134,15 +134,3 @@ export function IdentityStep({ wizard }: IdentityStepProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.lg,
-  },
-  sectionLabel: {
-    fontFamily: fonts.displaySoft,
-    fontSize: fontSizes.subtitle,
-    color: colors.textPrimary,
-    marginTop: spacing.sm,
-  },
-});

@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { LoadingDots } from '@/components/shared/LoadingDots';
-import { clayDepth, clayShadow, colors, fonts, fontSizes, radii } from '@/theme';
+import { clayButtonStyles as styles } from '@/styles/clay/clayButton.styles';
+import { clayDepth, clayShadow, colors } from '@/theme';
 
 type ClayButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -88,39 +89,3 @@ export function ClayButton({
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  shell: {
-    borderRadius: radii.xl,
-  },
-  shellDisabled: {
-    opacity: 0.55,
-  },
-  face: {
-    borderRadius: radii.xl,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 54,
-    borderTopWidth: 1.5,
-    borderTopColor: colors.ctaFaceHighlight,
-  },
-  label: {
-    fontFamily: fonts.bold,
-    fontSize: fontSizes.subtitle,
-    letterSpacing: 0.2,
-  },
-  ghost: {
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  ghostPressed: {
-    opacity: 0.6,
-  },
-  ghostLabel: {
-    fontFamily: fonts.semibold,
-    fontSize: fontSizes.body,
-    color: colors.textLink,
-  },
-});

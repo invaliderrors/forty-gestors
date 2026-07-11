@@ -1,7 +1,8 @@
 import type { PropsWithChildren } from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
+import { View, type ViewStyle } from 'react-native';
 
-import { clayShadow, colors, radii, spacing } from '@/theme';
+import { clayCardStyles as styles } from '@/styles/clay/clayCard.styles';
+import { clayShadow } from '@/theme';
 
 type ClayCardProps = PropsWithChildren<{
   style?: ViewStyle;
@@ -17,18 +18,3 @@ export function ClayCard({ children, style, flat = false }: ClayCardProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  shell: {
-    borderRadius: radii.xxl,
-    backgroundColor: colors.surfaceDepth,
-  },
-  face: {
-    borderRadius: radii.xxl,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    padding: spacing.xl,
-    marginBottom: 4,
-  },
-});

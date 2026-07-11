@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { PersonaTypeCard } from '@/components/register/PersonaTypeCard';
 import { AuthShell } from '@/components/shared/AuthShell';
-import { colors, fonts, fontSizes, spacing } from '@/theme';
+import { registerTypeStyles as styles } from '@/styles/register/registerType.styles';
 
 /** Antesala del registro: el gestor elige cómo opera y de ahí va a su flujo. */
 export function RegisterTypeScreen() {
@@ -37,14 +37,3 @@ export function RegisterTypeScreen() {
     </AuthShell>
   );
 }
-
-const styles = StyleSheet.create({
-  note: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.caption,
-    lineHeight: 19,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
-});

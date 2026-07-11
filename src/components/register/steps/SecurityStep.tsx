@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { RegisterWizard } from '@/application/registration/useRegisterWizard';
 import { ClayCheckbox } from '@/components/shared/clay/ClayCheckbox';
 import { ClayNotice } from '@/components/shared/clay/ClayNotice';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { PasswordStrengthMeter } from '@/components/shared/PasswordStrengthMeter';
-import { colors, fonts, fontSizes, spacing } from '@/theme';
+import { securityStepStyles as styles } from '@/styles/register/securityStep.styles';
 
 type SecurityStepProps = {
   wizard: RegisterWizard;
@@ -55,15 +55,3 @@ export function SecurityStep({ wizard }: SecurityStepProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.lg,
-  },
-  intro: {
-    fontFamily: fonts.medium,
-    fontSize: fontSizes.body,
-    lineHeight: 21,
-    color: colors.textSecondary,
-  },
-});

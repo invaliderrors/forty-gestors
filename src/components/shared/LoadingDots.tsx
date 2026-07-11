@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -10,6 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { loadingDotsStyles as styles } from '@/styles/shared/loadingDots.styles';
 import { colors } from '@/theme';
 
 type LoadingDotsProps = {
@@ -58,13 +59,3 @@ export function LoadingDots({ color = colors.textPrimary, size = 7 }: LoadingDot
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    gap: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 22,
-  },
-});

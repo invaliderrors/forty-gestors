@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
+import { lightBackgroundStyles as styles } from '@/styles/shared/lightBackground.styles';
 import { colors } from '@/theme';
 
 function Blob({
@@ -42,20 +43,3 @@ export function LightBackground() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    backgroundColor: colors.surface,
-  },
-  blob: {
-    position: 'absolute',
-  },
-  gold: {
-    top: -100,
-    right: -90,
-  },
-  cyan: {
-    bottom: -150,
-    left: -130,
-  },
-});

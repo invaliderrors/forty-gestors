@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { ClayButton } from '@/components/shared/clay/ClayButton';
 import { ClayNotice } from '@/components/shared/clay/ClayNotice';
 import { ClayOtpInput } from '@/components/shared/clay/ClayOtpInput';
-import { colors, fonts, fontSizes, radii, spacing } from '@/theme';
+import { useOtpField } from '@/hooks/register/useOtpField';
+import { otpVerificationStyles as styles } from '@/styles/register/otpVerification.styles';
+import { colors } from '@/theme';
 
 const CODE_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -26,35 +27,12 @@ export function OtpVerification({
   onVerify,
   onResend,
 }: OtpVerificationProps) {
-  const [code, setCode] = useState('');
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
-  const [resendNotice, setResendNotice] = useState(false);
-  const lastAutoSubmittedRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCooldown((current) => (current > 0 ? current - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleChange = (next: string) => {
-    setCode(next);
-    setResendNotice(false);
-    // Auto-verifica al completar las 6 cifras (una sola vez por código).
-    if (next.length === CODE_LENGTH && lastAutoSubmittedRef.current !== next) {
-      lastAutoSubmittedRef.current = next;
-      onVerify(next);
-    }
-  };
-
-  const handleResend = async () => {
-    setCooldown(RESEND_COOLDOWN_SECONDS);
-    setCode('');
-    lastAutoSubmittedRef.current = null;
-    setResendNotice(true);
-    await onResend();
-  };
+  const { code, cooldown, resendNotice, handleChange, handleResend } = useOtpField({
+    length: CODE_LENGTH,
+    cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+    onVerify,
+    onResend,
+  });
 
   return (
     <View style={styles.container}>
@@ -94,37 +72,3 @@ export function OtpVerification({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.xl,
-  },
-  iconBubble: {
-    alignSelf: 'center',
-    width: 72,
-    height: 72,
-    borderRadius: radii.lg,
-    backgroundColor: colors.ctaFace,
-    borderBottomWidth: 4,
-    borderBottomColor: colors.ctaDepth,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emailHint: {
-    fontFamily: fonts.medium,
-    fontSize: fontSizes.body,
-    lineHeight: 22,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  email: {
-    fontFamily: fonts.bold,
-    color: colors.textPrimary,
-  },
-  demoHint: {
-    textAlign: 'center',
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.micro,
-    color: colors.textMuted,
-  },
-});

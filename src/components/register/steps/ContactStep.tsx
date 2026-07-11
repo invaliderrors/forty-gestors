@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { RegisterWizard } from '@/application/registration/useRegisterWizard';
 import { ClayPickerSheet } from '@/components/shared/clay/ClayPickerSheet';
 import { ClaySelectField } from '@/components/shared/clay/ClaySelectField';
 import { ClayTextInput } from '@/components/shared/clay/ClayTextInput';
 import { DEPARTMENTS, municipalitiesOf } from '@/domain/shared/colombia';
-import { colors, fonts, fontSizes, spacing } from '@/theme';
+import { contactStepStyles as styles } from '@/styles/register/contactStep.styles';
 
 const departmentOptions = DEPARTMENTS.map((department) => ({
   value: department,
@@ -123,15 +123,3 @@ export function ContactStep({ wizard }: ContactStepProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.lg,
-  },
-  sectionLabel: {
-    fontFamily: fonts.displaySoft,
-    fontSize: fontSizes.subtitle,
-    color: colors.textPrimary,
-    marginTop: spacing.sm,
-  },
-});
