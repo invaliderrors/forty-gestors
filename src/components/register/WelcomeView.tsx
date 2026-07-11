@@ -52,14 +52,8 @@ export function WelcomeView({ displayName, onContinue }: WelcomeViewProps) {
       </Animated.View>
       <Animated.View style={[styles.textBlock, textStyle]}>
         <Text style={styles.title}>¡Todo listo, {firstName}!</Text>
-        <Text style={styles.message}>
-          Tu correo quedó verificado y tu cuenta de gestor está activa. Bienvenido a Fortu
-          Gestor.
-        </Text>
-        <Text style={styles.note}>
-          Seguimos revisando tus documentos en segundo plano; te avisaremos si necesitamos algo
-          más.
-        </Text>
+        <Text style={styles.message}>Tu correo quedó verificado. Bienvenido a Fortu Gestor.</Text>
+        <Text style={styles.note}>Tus documentos suministrados seguirán bajo revisión.</Text>
       </Animated.View>
       <ClayButton label="Ir a mi panel" onPress={onContinue} />
     </View>
